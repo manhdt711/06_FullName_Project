@@ -15,6 +15,18 @@ namespace eStoreAPI
         {
             return CommondityDtoDAO.GetCommodityDTO();
         }
+        [HttpDelete("Delete/{id}")]
+        public IActionResult DeleteOrder(int id)
+        {
+            CommodityDAO.DeleteCommodityById(id);
+            return NoContent();
+        }
+        [HttpPut("Update/{id}")]
+        public IActionResult UpdateProduct(Commodity c)
+        {
+            CommodityDAO.UpdateCommodity(c);
+            return NoContent();
+        }
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ClassLibrary2.DTO;
 using ElecStore.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,18 +17,15 @@ namespace ClassLibrary2.ViewModel
                 using (var context = new ElectricStore1Context())
                 {
                     var commodityList = context.Commodities
-                        .Join(
-                            context.CommodityCategories,
-                            commodity => commodity.CategoryId,
-                            category => category.CategoryId,
-                            (commodity, category) => new CommodityDTO
-                            {
-                                CommodityId = commodity.CommodityId,
-                                CommodityName = commodity.CommodityName,
-                                UnitPrice = commodity.UnitPrice ?? 0, // Handling nullable value
-                                UnitInStock = commodity.UnitInStock ?? 0, // Handling nullable value
-                                CategoryName = category.CategoryName
-                            })
+                        .Include(c => c.Category)
+                        .Select(c => new CommodityDTO
+                        {
+                            CommodityId = c.CommodityId,
+                            CommodityName = c.CommodityName,
+                            UnitPrice = c.UnitPrice ?? 0, // Handling nullable value
+                            UnitInStock = c.UnitInStock ?? 0, // Handling nullable value
+                            CategoryName = c.Category != null ? c.Category.CategoryName : "Uncategorized" // Handling null category without null propagating operator
+                        })
                         .ToList();
 
                     commodities.AddRange(commodityList);

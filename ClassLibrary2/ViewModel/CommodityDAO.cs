@@ -27,13 +27,13 @@ namespace ClassLibrary2.ViewModel
             }
         }
 
-        public static void DeleteCommodity(Commodity commodity)
+        public static void DeleteCommodityById(int id)
         {
             try
             {
                 using (var context = new ElectricStore1Context())
                 {
-                    var commodityToDelete = context.Commodities.SingleOrDefault(u => u.CommodityId == commodity.CommodityId);
+                    var commodityToDelete = context.Commodities.SingleOrDefault(u => u.CommodityId == id);
                     context.Commodities.Remove(commodityToDelete);
                     context.SaveChanges();
                 }

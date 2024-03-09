@@ -1,0 +1,72 @@
+﻿@model IEnumerable<ClassLibrary2.DTO.CommodityDTO>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<a asp-controller="Commodities" asp-action="Create">Create New</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Commodity Name
+            </th>
+            <th>
+                Unit Price
+            </th>
+            <th>
+                Unit In Stock
+            </th>
+            <th>
+                Category Name
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // Hàm này được gọi khi trang đã tải xong
+        function ShowAllCommodities() {
+            // Xóa bảng hiện có để chuẩn bị điền dữ liệu mới
+            $("table tbody").html("");
+            // Gửi yêu cầu AJAX để lấy danh sách hàng hóa từ API
+            $.ajax({
+                url: "https://localhost:7194/api/Commodity/GetCommodityManager", // URL của API để lấy dữ liệu hàng hóa
+                type: "get", // Phương thức HTTP là GET
+                contentType: "application/json; charset=utf-8",
+                dataType: "json", // Kiểu dữ liệu mong đợi là JSON
+                success: function (result, status, xhr) {
+                    // Callback được gọi khi yêu cầu thành công
+                    // Duyệt qua từng hàng hóa trong kết quả và thêm chúng vào bảng
+                    $.each(result, function (index, value) {
+                        var newRow = $("<tr>"); // Tạo một hàng mới
+                        // Điền dữ liệu hàng hóa vào từng ô trong hàng
+                        newRow.append($("<td>").html(value["commodityName"]));
+                        newRow.append($("<td>").html(value["unitPrice"]));
+                        newRow.append($("<td>").html(value["unitInStock"]));
+                        newRow.append($("<td>").html(value["categoryName"]));
+                        // Tạo một liên kết để cập nhật thông tin hàng hóa với CommodityId tương ứng
+                        newRow.append($("<td>").html("<a href='/Commodities/Edit?id=" + value["commodityId"] + "'>Edit</a>"));
+                        // Tạo nút xóa hàng hóa với CommodityId tương ứng
+                        newRow.append($("<td>").html("<a href='/Commodities/Delete?id=" + value["commodityId"] + "'>Delete</a>"));
+                        // Thêm hàng mới vào bảng
+                        $("table tbody").append(newRow);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    // Callback được gọi khi có lỗi xảy ra trong quá trình gửi yêu cầu
+                    console.log(xhr);
+                }
+            });
+        }
+
+        // Gọi hàm ShowAllCommodities() khi trang đã tải xong để hiển thị danh sách hàng hóa ban đầu
+        ShowAllCommodities();
+    });
+</script>

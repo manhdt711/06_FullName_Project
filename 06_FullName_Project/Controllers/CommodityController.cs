@@ -28,5 +28,25 @@ namespace eStoreAPI
             return NoContent();
         }
 
+        [HttpGet("GetById/{id}")]
+        public IActionResult GetById(int id)
+        {
+            ClassLibrary2.DTO.CommodityDTO commodityDTO = CommondityDtoDAO.GetCommodityDTOById(id);
+            return Ok(commodityDTO);
+        }
+
+        [HttpGet("GetByCommodityName/{commodityName}")]
+        public IActionResult GetByCommodityName(string commodityName)
+        {
+            List<ClassLibrary2.DTO.CommodityDTO> commodityDTO = CommondityDtoDAO.GetCommodityDTOByName(commodityName);
+            return Ok(commodityDTO);
+        }
+        [HttpGet("GetByCategoryId/{categoryId}")]
+        public IActionResult GetByCategoryId(int categoryId)
+        {
+            List<ClassLibrary2.DTO.CommodityDTO> commodityDTO = CommondityDtoDAO.GetCommodityDTOByCategoryId(categoryId);
+            return Ok(commodityDTO);
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using ElecStore.Models;
+﻿using DocumentFormat.OpenXml.InkML;
+using ElecStore.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -127,6 +128,22 @@ namespace ClassLibrary2.ViewModel
             {
                 throw new Exception(ex.Message);
             }
+        }
+        public static User Login(User user)
+        {
+            User user1 = new User();
+            try
+            {
+                using (var context = new ElectricStore1Context())
+                {
+                   user1 = context.Users.FirstOrDefault(x => x.UserName.Equals(user.UserName) && x.Password.Equals(user.Password));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return user1;
         }
     }
 }

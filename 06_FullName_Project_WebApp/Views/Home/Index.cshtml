@@ -1,8 +1,228 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <style>
+        /* The Modal (background) */
+        .form-column {
+            float: left;
+            width: 50%;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+        .input-field {
+            width: 100%; /* Set all input fields to 100% width */
+        }
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 110%; /* Full height */
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%; /* Could be more or less, depending on screen size */
+        }
+
+        /* Close Button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form asp-action="Order" id="orderForm">
+                <div class="form-column">
+                    <label for="commodityName">Commodity Name:</label><br>
+                    <input type="text" id="commodityName" name="commodityName" class="input-field" required><br><br>
+
+                    <label for="price">Price:</label><br>
+                    <input type="number" id="price" name="price" class="input-field" required><br><br>
+
+                    <label for="quantity">Quantity:</label><br>
+                    <input type="number" id="quantity" name="quantity" class="input-field" required><br><br>
+                </div>
+
+                <div class="form-column">
+                    <label for="customerName">Customer Name:</label><br>
+                    <input type="text" id="customerName" name="customerName" class="input-field" required><br><br>
+
+                    <label for="address">Address:</label><br>
+                    <textarea id="address" name="address" class="input-field" required></textarea><br><br>
+
+                    <label for="phoneNumber">Phone Number:</label><br>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" class="input-field" required pattern="[0-9]{10}"><br><br>
+
+                    <label for="note">Note:</label><br>
+                    <textarea id="note" name="note" class="input-field"></textarea><br><br>
+                </div>
+
+                <input type="submit" value="Order">
+            </form>
+        </div>
+
+    </div>
+    @* search and filter *@
+    <h3>Search Commodity</h3>
+    @* Select category *@
+    <select id="mySelect">
+        <option value="1">Ðèn LED</option>
+        <option value="2">Cáp điện</option>
+        <option value="3">Ổ cắm điện</option>
+        <option value="4">Bộ công cụ điện</option>
+    </select>
+    @* search category *@
+    <input type="text" placeholder="Commodity name" id="commodityNameSearch" />
+    <input type="button" id="btnSearch" value="Search" />
+
+    @* loading  *@
+    <div id="loadingIndicator" style="display: none; text-align: center; font-size:30px; padding-top: 30px;">
+        <!-- You can use any loading animation here, for example, a spinner -->
+        Loading...
+    </div>
+    @* show main table *@
+    <table id="table-gg" class="table">
+    </table>
+</body>
+<script src="../lib/jquery/dist/jquery.min.js"></script>
+<script src="../lib/jquery/dist/jquery.js"></script>
+
+<script>
+    $(document).ready(() => {
+        getAllCommodity();
+    });
+    // get list Commodity
+    const getAllCommodity = () =>
+        $('#loadingIndicator').show();
+    $.ajax({
+        url: "https://localhost:7194/api/Commodity/GetCommodityManager",
+        method: 'GET',
+        contentType: "application/json",
+        success: (data) => { loadTableData(data); $('#loadingIndicator').hide();},
+            error: () => { alert("not found data!") }
+        })
+
+    const loadTableData = (data) => {
+        $("#table-gg").empty();
+        var htmlHeader = `
+     <thead>
+         <tr>
+                 <th>commodityName</th>
+                 <th>unitPrice</th>
+                 <th>unitInStock</th>
+                 <th>categoryName</th>
+                 <th></th>
+         </tr>
+     </thead>
+                                       `;
+        $("#table-gg").append(htmlHeader);
+        $("#table-gg").append("<tbody>");
+        data.forEach(item => {
+            var htmlBody = `
+                                            <tr>
+                                                <td>${item.commodityName}</td>
+                                                <td>${item.unitPrice}</td>
+                                                <td>${item.unitInStock}</td>
+                                                <td>${item.categoryName}</td>
+                                                <td><a href="javascript:void(0)" data-id="${item.commodityId}" id="myModalBtn">Buy</a></td>
+                                            </tr>
+                                                `;
+            $("#table-gg").append(htmlBody);
+        });
+        $("#table-gg").append("</tbody>");
+    }
+
+    // js for modal
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+
+    $(document).on('click', '#myModalBtn', async function () {
+        let id = $(this).attr('data-id');
+        await $.ajax({
+            url: `https://localhost:7194/api/Commodity/GetById/${id}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => {
+                console.log(data.unitPrice)
+                $("#commodityName").val(data.commodityName);
+                $("#price").val(data.unitPrice);
+            },
+            error: () => { alert("not found data!") }
+        });
+        modal.style.display = "block";
+    })
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+
+    //btn search
+    $(document).on('click', '#btnSearch', async () => {
+        let commodityName = $('#commodityNameSearch').val();
+        if (commodityName == "") {
+            getAllCommodity();
+        } else {
+        await $.ajax({
+            url: `https://localhost:7194/api/Commodity/GetByCommodityName/${commodityName}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => { loadTableData(data), console.log(data) },
+            error: () => { alert("not found data!") }
+
+        });
+        }
+    });
+
+    // selection change
+    $(document).on('change', '#mySelect', async function () {
+        var selectedOption = $(this).val();
+        console.log(selectedOption);
+        await $.ajax({
+            url: `https://localhost:7194/api/Commodity/GetByCategoryId/${selectedOption}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => { loadTableData(data), console.log(data) },
+            error: () => { alert("not found data!") }
+
+        });
+    });
+</script>
+
+</html>

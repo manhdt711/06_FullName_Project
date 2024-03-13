@@ -8,10 +8,10 @@ namespace ClassLibrary2.DTO
 {
     public class CommodityDTO
     {
-        public int CommodityId { get; set; }
-        public string CommodityName { get; set; }
-        public decimal UnitPrice { get; set; }
-        public int UnitInStock { get; set; }
-        public string CategoryName { get; set; }
+        public int? CommodityId { get; set; }
+        public string? CommodityName { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public int? UnitInStock { get; set; }
+        public string? CategoryName { get; set; }
     }
 }

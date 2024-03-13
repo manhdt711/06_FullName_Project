@@ -28,5 +28,12 @@ namespace eStoreAPI
             return NoContent();
         }
 
+        [HttpGet("GetById/{id}")]
+        public IActionResult GetById(int id)
+        {
+            ClassLibrary2.DTO.CommodityDTO commodityDTO = CommondityDtoDAO.GetCommodityDTOById(id);
+            return Ok(commodityDTO);
+        }
+
     }
 }

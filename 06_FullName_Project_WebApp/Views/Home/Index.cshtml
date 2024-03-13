@@ -1,8 +1,224 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <style>
+        /* The Modal (background) */
+        .form-column {
+            float: left;
+            width: 50%;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+        .input-field {
+            width: 100%; /* Set all input fields to 100% width */
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%; /* Could be more or less, depending on screen size */
+        }
+
+        /* Close Button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+    </style>
+</head>
+<body>
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form asp-action="Order" id="orderForm">
+                <div class="form-column">
+                    <label for="commodityName">Commodity Name:</label><br>
+                    <input type="text" id="commodityName" name="commodityName" class="input-field" required><br><br>
+
+                    <label for="price">Price:</label><br>
+                    <input type="number" id="price" name="price" class="input-field" required><br><br>
+
+                    <label for="quantity">Quantity:</label><br>
+                    <input type="number" id="quantity" name="quantity" class="input-field" required><br><br>
+                </div>
+
+                <div class="form-column">
+                    <label for="customerName">Customer Name:</label><br>
+                    <input type="text" id="customerName" name="customerName" class="input-field" required><br><br>
+
+                    <label for="address">Address:</label><br>
+                    <textarea id="address" name="address" class="input-field" required></textarea><br><br>
+
+                    <label for="phoneNumber">Phone Number:</label><br>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" class="input-field" required pattern="[0-9]{10}"><br><br>
+
+                    <label for="note">Note:</label><br>
+                    <textarea id="note" name="note" class="input-field"></textarea><br><br>
+                </div>
+
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+
+    </div>
+
+    <h3>Search Commodity</h3>
+    <input type="text" placeholder="Nationality" id="nationality" />
+    <input type="text" placeholder="Gender" id="gender" />
+    <input type="button" id="btnSearch" value="Search" />
+
+    <table id="table-gg" class="table">
+    </table>
+</body>
+<script src="../lib/jquery/dist/jquery.min.js"></script>
+<script src="../lib/jquery/dist/jquery.js"></script>
+
+<script>
+    $(document).ready(() => {
+        getAllCommodity();
+    });
+
+//create director
+    $(document).on('click', '#btnCreate', function () {
+        let fullName = $('#fullName').val();
+        let gender = $('input[name="gender"]:checked').val();
+        let dob = $('#dob').val();
+        let nationality = $('#nationality').val();
+        let description = $('#description').val();
+        let isMale = gender === "male"; // Check if gender is male
+        const dataJson = {
+            fullName: fullName,
+            male: isMale,
+            dob: dob,
+            nationality: nationality,
+            description: description
+        };
+    
+            $.ajax({
+                url: `https://localhost:5000/api/Director/Create`,
+                method: 'Post',
+                data: JSON.stringify(dataJson),
+                contentType: "application/json",
+                success: (data) => {
+                    console.log(data)
+                    $("#ShowDetail").empty();
+                    $("#ShowDetail").append(`<p>List of movies of '${data.fullName}'</p>`);
+                    $("#ShowDetail").append(`<ul>`);
+                    data.movies.forEach(item => {
+                        var htmlBody = `                      
+                       <li>${item.title} - release year: ${item.releaseYear}</li>
+                              `;
+                        $("#ShowDetail").append(htmlBody);
+                    });
+                    $("#ShowDetail").append(`</ul>`);
+
+
+                },
+                error: () => { alert("not found data!") }
+
+            });
+    })
+//---------------
+
+    const getAllCommodity = () => 
+        $.ajax({
+            url: "https://localhost:7194/api/Commodity/GetCommodityManager",
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => loadTableData(data),
+        error: () => { alert("not found data!") }
+    })
+
+    const loadTableData = (data) => {
+        $("#table-gg").empty();
+        var htmlHeader = `
+ <thead>
+     <tr>
+             <th>commodityName</th>
+             <th>unitPrice</th>
+             <th>unitInStock</th>
+             <th>categoryName</th>
+             <th></th>
+     </tr>
+ </thead>
+                                   `;
+        $("#table-gg").append(htmlHeader);
+        $("#table-gg").append("<tbody>");
+        data.forEach(item => {
+            var htmlBody = `
+                                        <tr>
+                                            <td>${item.commodityName}</td>
+                                            <td>${item.unitPrice}</td>
+                                            <td>${item.unitInStock}</td>
+                                            <td>${item.categoryName}</td>
+                                                <td><a href="javascript:void(0)" data-id="${item.commodityId}" id="myModalBtn">Buy</a></td>
+                                        </tr>
+                                            `;
+            $("#table-gg").append(htmlBody);
+        });
+        $("#table-gg").append("</tbody>");
+    }
+
+    // js for modal
+    var modal = document.getElementById("myModal");
+    var span = document.getElementsByClassName("close")[0];
+
+    $(document).on('click', '#myModalBtn',async function () {
+        let id = $(this).attr('data-id');
+      await $.ajax({
+            url: `https://localhost:7194/api/Commodity/GetById/${id}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => {
+                console.log(data.unitPrice)
+                $("#commodityName").val(data.commodityName);
+                $("#price").val(data.unitPrice);
+            },
+            error: () => { alert("not found data!") }
+        });
+        modal.style.display = "block";
+    })
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+</script>
+
+</html>

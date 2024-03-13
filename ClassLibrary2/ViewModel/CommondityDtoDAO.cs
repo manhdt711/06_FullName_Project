@@ -37,5 +37,30 @@ namespace ClassLibrary2.ViewModel
             }
             return commodities;
         }
+        public static CommodityDTO GetCommodityDTOById(int id)
+        {
+            CommodityDTO commodityDTO = new CommodityDTO();
+            try
+            {
+                using (var context = new ElectricStore1Context())
+                {
+                    Commodity commodity = context.Commodities
+                        .Include(c => c.Category).FirstOrDefault(x => x.CommodityId == id);
+                    if (commodity != null)
+                    {
+                        commodityDTO.CommodityId = commodity.CommodityId;
+                        commodityDTO.CommodityName = commodity.CommodityName;
+                        commodityDTO.UnitPrice = commodity.UnitPrice ?? -1;
+                        commodityDTO.UnitInStock = commodity.UnitInStock ?? -1;
+                        commodityDTO.CategoryName = commodity.CommodityName;
+                    }           
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return commodityDTO;
+        }
     }
 }

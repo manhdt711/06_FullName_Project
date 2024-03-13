@@ -2,18 +2,14 @@
 using ClassLibrary2.ViewModel;
 using ElecStore.Models;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 
 namespace eStoreAPI
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
-        readonly ElectricStore1Context _context;
-        public UserController(ElectricStore1Context context)
-        {
-            _context = context;
-        }
         [HttpGet("GetUserById/{id}")]
         public ActionResult<User> GetUserById(int id)
         {
@@ -24,11 +20,11 @@ namespace eStoreAPI
             }
             return user;
         }
-        [HttpGet("Login")]
+                [HttpGet("Login")]
         public ActionResult<User> Login([FromBody] ElecStore.Models.User user)
         {
-            User user1 = _context.Users.FirstOrDefault(x => x.UserName.Equals(user.UserName) && x.Password.Equals(user.Password));
-            return Ok(user);
+            User user1 = UserDAO.Login(user);
+            return Ok(user1);
         }
 
     }

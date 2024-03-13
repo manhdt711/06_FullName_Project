@@ -2,7 +2,6 @@
 using ClassLibrary2.ViewModel;
 using ElecStore.Models;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Core.Types;
 
 namespace eStoreAPI
 {
@@ -20,7 +19,7 @@ namespace eStoreAPI
             }
             return user;
         }
-                [HttpGet("Login")]
+        [HttpGet("Login")]
         public ActionResult<User> Login([FromBody] ElecStore.Models.User user)
         {
             User user1 = UserDAO.Login(user);

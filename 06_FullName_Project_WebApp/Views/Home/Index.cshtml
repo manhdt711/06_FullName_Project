@@ -17,6 +17,7 @@
         .input-field {
             width: 100%; /* Set all input fields to 100% width */
         }
+
         .modal {
             display: none; /* Hidden by default */
             position: fixed; /* Stay in place */
@@ -24,8 +25,8 @@
             left: 0;
             top: 0;
             width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
+            height: 110%; /* Full height */
+            overflow: auto;
             background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
         }
 
@@ -55,9 +56,9 @@
     </style>
 </head>
 <body>
+
     <!-- The Modal -->
     <div id="myModal" class="modal">
-
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -87,17 +88,30 @@
                     <textarea id="note" name="note" class="input-field"></textarea><br><br>
                 </div>
 
-                <input type="submit" value="Submit">
+                <input type="submit" value="Order">
             </form>
         </div>
 
     </div>
-
+    @* search and filter *@
     <h3>Search Commodity</h3>
-    <input type="text" placeholder="Nationality" id="nationality" />
-    <input type="text" placeholder="Gender" id="gender" />
+    @* Select category *@
+    <select id="mySelect">
+        <option value="1">Ðèn LED</option>
+        <option value="2">Cáp điện</option>
+        <option value="3">Ổ cắm điện</option>
+        <option value="4">Bộ công cụ điện</option>
+    </select>
+    @* search category *@
+    <input type="text" placeholder="Commodity name" id="commodityNameSearch" />
     <input type="button" id="btnSearch" value="Search" />
 
+    @* loading  *@
+    <div id="loadingIndicator" style="display: none; text-align: center; font-size:30px; padding-top: 30px;">
+        <!-- You can use any loading animation here, for example, a spinner -->
+        Loading...
+    </div>
+    @* show main table *@
     <table id="table-gg" class="table">
     </table>
 </body>
@@ -108,83 +122,42 @@
     $(document).ready(() => {
         getAllCommodity();
     });
-
-//create director
-    $(document).on('click', '#btnCreate', function () {
-        let fullName = $('#fullName').val();
-        let gender = $('input[name="gender"]:checked').val();
-        let dob = $('#dob').val();
-        let nationality = $('#nationality').val();
-        let description = $('#description').val();
-        let isMale = gender === "male"; // Check if gender is male
-        const dataJson = {
-            fullName: fullName,
-            male: isMale,
-            dob: dob,
-            nationality: nationality,
-            description: description
-        };
-    
-            $.ajax({
-                url: `https://localhost:5000/api/Director/Create`,
-                method: 'Post',
-                data: JSON.stringify(dataJson),
-                contentType: "application/json",
-                success: (data) => {
-                    console.log(data)
-                    $("#ShowDetail").empty();
-                    $("#ShowDetail").append(`<p>List of movies of '${data.fullName}'</p>`);
-                    $("#ShowDetail").append(`<ul>`);
-                    data.movies.forEach(item => {
-                        var htmlBody = `                      
-                       <li>${item.title} - release year: ${item.releaseYear}</li>
-                              `;
-                        $("#ShowDetail").append(htmlBody);
-                    });
-                    $("#ShowDetail").append(`</ul>`);
-
-
-                },
-                error: () => { alert("not found data!") }
-
-            });
-    })
-//---------------
-
-    const getAllCommodity = () => 
-        $.ajax({
-            url: "https://localhost:7194/api/Commodity/GetCommodityManager",
-            method: 'GET',
-            contentType: "application/json",
-            success: (data) => loadTableData(data),
-        error: () => { alert("not found data!") }
-    })
+    // get list Commodity
+    const getAllCommodity = () =>
+        $('#loadingIndicator').show();
+    $.ajax({
+        url: "https://localhost:7194/api/Commodity/GetCommodityManager",
+        method: 'GET',
+        contentType: "application/json",
+        success: (data) => { loadTableData(data); $('#loadingIndicator').hide();},
+            error: () => { alert("not found data!") }
+        })
 
     const loadTableData = (data) => {
         $("#table-gg").empty();
         var htmlHeader = `
- <thead>
-     <tr>
-             <th>commodityName</th>
-             <th>unitPrice</th>
-             <th>unitInStock</th>
-             <th>categoryName</th>
-             <th></th>
-     </tr>
- </thead>
-                                   `;
+     <thead>
+         <tr>
+                 <th>commodityName</th>
+                 <th>unitPrice</th>
+                 <th>unitInStock</th>
+                 <th>categoryName</th>
+                 <th></th>
+         </tr>
+     </thead>
+                                       `;
         $("#table-gg").append(htmlHeader);
         $("#table-gg").append("<tbody>");
         data.forEach(item => {
             var htmlBody = `
-                                        <tr>
-                                            <td>${item.commodityName}</td>
-                                            <td>${item.unitPrice}</td>
-                                            <td>${item.unitInStock}</td>
-                                            <td>${item.categoryName}</td>
+                                            <tr>
+                                                <td>${item.commodityName}</td>
+                                                <td>${item.unitPrice}</td>
+                                                <td>${item.unitInStock}</td>
+                                                <td>${item.categoryName}</td>
                                                 <td><a href="javascript:void(0)" data-id="${item.commodityId}" id="myModalBtn">Buy</a></td>
-                                        </tr>
-                                            `;
+                                            </tr>
+                                                `;
             $("#table-gg").append(htmlBody);
         });
         $("#table-gg").append("</tbody>");
@@ -194,9 +167,9 @@
     var modal = document.getElementById("myModal");
     var span = document.getElementsByClassName("close")[0];
 
-    $(document).on('click', '#myModalBtn',async function () {
+    $(document).on('click', '#myModalBtn', async function () {
         let id = $(this).attr('data-id');
-      await $.ajax({
+        await $.ajax({
             url: `https://localhost:7194/api/Commodity/GetById/${id}`,
             method: 'GET',
             contentType: "application/json",
@@ -219,6 +192,37 @@
         modal.style.display = "none";
     }
 
+
+    //btn search
+    $(document).on('click', '#btnSearch', async () => {
+        let commodityName = $('#commodityNameSearch').val();
+        if (commodityName == "") {
+            getAllCommodity();
+        } else {
+        await $.ajax({
+            url: `https://localhost:7194/api/Commodity/GetByCommodityName/${commodityName}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => { loadTableData(data), console.log(data) },
+            error: () => { alert("not found data!") }
+
+        });
+        }
+    });
+
+    // selection change
+    $(document).on('change', '#mySelect', async function () {
+        var selectedOption = $(this).val();
+        console.log(selectedOption);
+        await $.ajax({
+            url: `https://localhost:7194/api/Commodity/GetByCategoryId/${selectedOption}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => { loadTableData(data), console.log(data) },
+            error: () => { alert("not found data!") }
+
+        });
+    });
 </script>
 
 </html>

@@ -129,7 +129,7 @@
     const getAllCommodity = () =>
         $('#loadingIndicator').show();
     $.ajax({
-        url: "https://localhost:7194/api/Commodity/GetCommodityManager",
+        url: "https://localhost:7194/api/Orders/GetAllOrder",
         method: 'GET',
         contentType: "application/json",
         success: (data) => { loadTableData(data); $('#loadingIndicator').hide(); },
@@ -139,28 +139,39 @@
     const loadTableData = (data) => {
         $("#table-gg").empty();
         var htmlHeader = `
-                 <thead>
-                     <tr>
-                             <th>commodityName</th>
-                             <th>unitPrice</th>
-                             <th>unitInStock</th>
-                             <th>categoryName</th>
-                             <th></th>
-                     </tr>
-                 </thead>
-                                                   `;
+                                 <thead>
+                                     <tr>
+                                                 <th>commodityName</th>
+                                                 <th>quantity</th>
+                                                 <th>price</th>
+                                                 <th>customerName</th>
+                                                 <th>address</th>
+                                                 <th>phoneNumber</th>
+                                                 <th>note</th>
+                                                 <th>status</th>
+                                             <th></th>
+                                     </tr>
+                                 </thead>
+                                                                   `;
         $("#table-gg").append(htmlHeader);
         $("#table-gg").append("<tbody>");
         data.forEach(item => {
             var htmlBody = `
-                                                        <tr>
-                                                            <td>${item.commodityName}</td>
-                                                            <td>${item.unitPrice}</td>
-                                                            <td>${item.unitInStock}</td>
-                                                            <td>${item.categoryName}</td>
-                                                            <td><a href="javascript:void(0)" data-id="${item.commodityId}" id="myModalBtn">Buy</a></td>
-                                                        </tr>
-                                                            `;
+                                                                        <tr>
+                                                                            <td>${item.commodityName}</td>
+                                                                            <td>${item.quantity}</td>
+                                                                            <td>${item.price}</td>
+                                                                            <td>${item.customerName}</td>
+                                                                            <td>${item.address}</td>
+                                                                            <td>${item.phoneNumber}</td>
+                                                                            <td>${item.note}</td>
+                                                                            <td>${item.status}</td>
+                                                                            `;
+            if (item.status === "pending") {
+                htmlBody += `<td><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtn">Cancel</a></td></tr>`;
+            } else {
+                htmlBody += `</tr>`;
+            }
             $("#table-gg").append(htmlBody);
         });
         $("#table-gg").append("</tbody>");

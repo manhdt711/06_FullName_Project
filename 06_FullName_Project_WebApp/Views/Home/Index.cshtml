@@ -126,16 +126,16 @@
         getAllCommodity();
     });
     // get list Commodity
-    const getAllCommodity = () =>
+    const getAllCommodity = () => { 
         $('#loadingIndicator').show();
     $.ajax({
         url: "https://localhost:7194/api/Commodity/GetCommodityManager",
         method: 'GET',
         contentType: "application/json",
-        success: (data) => { loadTableData(data); $('#loadingIndicator').hide(); },
+        success: (data) => { loadTableData(data);},
         error: () => { alert("not found data!") }
     })
-
+    }
     const loadTableData = (data) => {
         $("#table-gg").empty();
         var htmlHeader = `
@@ -164,6 +164,7 @@
             $("#table-gg").append(htmlBody);
         });
         $("#table-gg").append("</tbody>");
+        $('#loadingIndicator').hide();
     }
 
     // js for modal

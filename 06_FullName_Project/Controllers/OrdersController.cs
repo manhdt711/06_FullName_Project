@@ -85,5 +85,17 @@ namespace _06_FullName_Project.Controllers
 
             return Ok();
         }
+        [HttpPost("DeleteOrder")]
+        public ActionResult DeleteOrder([FromBody] Order orderDele)
+        {
+            Order order = _context.Orders.FirstOrDefault(x => x.OrderId == orderDele.OrderId);
+            OrderDetail orderDetail = _context.OrderDetails.FirstOrDefault(x => x.OrderId == orderDele.OrderId);
+            _context.OrderDetails.Remove(orderDetail);
+            _context.SaveChanges();
+            
+            _context.Orders.Remove(order);  
+            _context.SaveChanges();
+         return Ok();
+        }
     }
 }

@@ -53,7 +53,7 @@ namespace _06_FullName_Project_WebApp.Controllers
             ElecStore.Models.User userLogin = JsonConvert.DeserializeObject<ElecStore.Models.User>(strData);
             //HttpContext.Session.SetInt32("userId", userLogin.UserId);
             //demo 
-            HttpContext.Session.SetInt32("userId", 1);
+        
 
             return RedirectToAction(nameof(Index));
         }

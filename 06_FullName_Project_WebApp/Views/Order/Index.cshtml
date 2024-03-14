@@ -62,36 +62,12 @@
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close">&times;</span>
-            <form asp-action="Order" id="orderForm">
-                <div class="form-column">
-                    <label for="commodityName">Commodity Name:</label><br>
-                    <input type="text" id="commodityName" name="commodityName" class="input-field" required><br><br>
-                    @* save id of commodity *@
-                    <input style="display:none;" type="text" id="commodityId" name="commodityId" class="input-field" required><br><br>
+            <form asp-action="DeleteOrder" id="orderForm">
+                    <p>Are you sure you want to delete this order?</p>
 
+                    <input style="display:none;" type="text" id="ordeId" name="orderId"><br><br>
 
-                    <label for="price">Price:</label><br>
-                    <input type="number" id="price" name="price" class="input-field" required><br><br>
-
-                    <label for="quantity">Quantity:</label><br>
-                    <input type="number" id="quantity" name="quantity" class="input-field" required><br><br>
-                </div>
-
-                <div class="form-column">
-                    <label for="customerName">Customer Name:</label><br>
-                    <input type="text" id="customerName" name="customerName" class="input-field" required><br><br>
-
-                    <label for="address">Address:</label><br>
-                    <textarea id="address" name="address" class="input-field" required></textarea><br><br>
-
-                    <label for="phoneNumber">Phone Number:</label><br>
-                    <input type="tel" id="phoneNumber" name="phoneNumber" class="input-field" required pattern="[0-9]{10}"><br><br>
-
-                    <label for="note">Note:</label><br>
-                    <textarea id="note" name="note" class="input-field"></textarea><br><br>
-                </div>
-
-                <input type="submit" value="Order">
+                <input type="submit" value="Delete order">
             </form>
         </div>
 
@@ -126,16 +102,16 @@
         getAllCommodity();
     });
     // get list Commodity
-    const getAllCommodity = () =>
+    const getAllCommodity = () => {
         $('#loadingIndicator').show();
-    $.ajax({
-        url: "https://localhost:7194/api/Orders/GetAllOrder",
-        method: 'GET',
-        contentType: "application/json",
-        success: (data) => { loadTableData(data); $('#loadingIndicator').hide(); },
-        error: () => { alert("not found data!") }
-    })
-
+        $.ajax({
+            url: "https://localhost:7194/api/Orders/GetAllOrder",
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => { loadTableData(data); },
+            error: () => { alert("not found data!") }
+        })
+    }
     const loadTableData = (data) => {
         $("#table-gg").empty();
         var htmlHeader = `
@@ -175,6 +151,7 @@
             $("#table-gg").append(htmlBody);
         });
         $("#table-gg").append("</tbody>");
+        $('#loadingIndicator').hide();
     }
 
     // js for modal
@@ -183,19 +160,7 @@
 
     $(document).on('click', '#myModalBtn', async function () {
         let id = $(this).attr('data-id');
-        await $.ajax({
-            url: `https://localhost:7194/api/Commodity/GetById/${id}`,
-            method: 'GET',
-            contentType: "application/json",
-            success: (data) => {
-                console.log(data.unitPrice)
-                $("#commodityName").val(data.commodityName);
-                $("#price").val(data.unitPrice);
-                $("#commodityId").val(id);
-
-            },
-            error: () => { alert("not found data!") }
-        });
+        $("#ordeId").val(id);
         modal.style.display = "block";
     })
 

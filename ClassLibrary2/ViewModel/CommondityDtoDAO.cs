@@ -14,6 +14,7 @@ namespace ClassLibrary2.ViewModel
                 {
                     var commodityList = context.Commodities
                         .Include(c => c.Category)
+                        .OrderBy(c => c.Category.CategoryName)
                         .Select(c => new CommodityDTO
                         {
                             CommodityId = c.CommodityId,

@@ -10,6 +10,9 @@ using System.Diagnostics.Metrics;
 using System.Text;
 using System.Text.Json;
 using ElecStore.Models;
+using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Spreadsheet;
+using ClassLibrary2.ViewModel;
 
 namespace eStoreClient.Controllers
 {
@@ -40,6 +43,44 @@ namespace eStoreClient.Controllers
             return View();
         }
 
-       
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Commodity model)
+        {
+
+            var jsonProduct = JsonSerializer.Serialize(model);
+            var content = new StringContent(jsonProduct, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await client.PostAsync($"{ApiCateUrl}/CreateCommodity", content);
+            response.EnsureSuccessStatusCode();
+            return RedirectToAction(nameof(Index), "Home");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Commodity model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    /* var jsonProduct = JsonSerializer.Serialize(model);
+                     var content = new StringContent(jsonProduct, Encoding.UTF8, "application/json");
+
+                     HttpResponseMessage response = await client.PutAsync($"{ApiCateUrl}/Update'", content);
+                     response.EnsureSuccessStatusCode();
+                     return RedirectToAction(nameof(Index), "Home");*/
+                    CommodityDAO.UpdateCommodity(model);
+                }
+                catch (Exception ex)
+                {
+                    return RedirectToAction(nameof(Index), "Home");
+
+                }
+            }
+
+            return RedirectToAction(nameof(Index), "Home");
+        }
+
     }
 }

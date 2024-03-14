@@ -1,5 +1,6 @@
 ﻿
 using ClassLibrary2.ViewModel;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using ElecStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Core.Types;
@@ -21,11 +22,23 @@ namespace eStoreAPI
             CommodityDAO.DeleteCommodityById(id);
             return NoContent();
         }
-        [HttpPut("Update/{id}")]
-        public IActionResult UpdateProduct(Commodity c)
+        [HttpPut("Update")]
+        public IActionResult UpdateCommodity([FromBody] Commodity commodity)
         {
-            CommodityDAO.UpdateCommodity(c);
-            return NoContent();
+            if (commodity == null)
+            {
+                return BadRequest("Invalid data");
+            }
+
+            try
+            {
+                CommodityDAO.UpdateCommodity(commodity);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpGet("GetById/{id}")]
@@ -47,6 +60,11 @@ namespace eStoreAPI
             List<ClassLibrary2.DTO.CommodityDTO> commodityDTO = CommondityDtoDAO.GetCommodityDTOByCategoryId(categoryId);
             return Ok(commodityDTO);
         }
-
+        [HttpPost("CreateCommodity")]
+        public IActionResult PostCommodity(Commodity c)
+        {
+            CommodityDAO.SaveCommodity(c);
+            return NoContent();
+        }
     }
 }

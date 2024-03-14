@@ -59,5 +59,21 @@ namespace ClassLibrary2.ViewModel
                 throw new Exception(ex.Message);
             }
         }
+        public static Commodity FindById(int id)
+        {
+            var commodity = new Commodity();
+            try
+            {
+                using (var context = new ElectricStore1Context())
+                {
+                    commodity = context.Commodities.FirstOrDefault(c => c.CommodityId == id);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return commodity;
+        }
     }
 }

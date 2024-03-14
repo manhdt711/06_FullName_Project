@@ -93,18 +93,78 @@
         </div>
 
     </div>
+
+    <div id="popupEdit" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form asp-controller="Commodity" asp-action="Edit" id="commodityForm" method="post">
+                <div class="form-column">
+                    <label for="CommodityId" >id </label>
+                    <input type="text" name="CommodityId" id="CommodityId" class="input-field">
+                    <label for="CommodityName">Commodity Name:</label>
+                    <input type="text" name="CommodityName" id="CommodityName" class="input-field">
+                    <label for="UnitPrice">UnitPrice:</label>
+                    <input type="number" name="UnitPrice" id="UnitPrice" class="input-field">
+                    <label for="UnitInStock">UnitInStock:</label>
+                    <input type="number" name="UnitInStock" id="UnitInStock" class="input-field">
+                    <label id="createCategoryId" for="CategoryId">Category:</label>
+                    <select name="CategoryId" id="CategoryId" class="form-control">
+                        <!-- Options will be dynamically added by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Edit" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalCreate" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form asp-controller="Commodity" asp-action="Create" id="commodityForm" method="post">
+                <div class="form-column">
+                    <label for="CommodityName">Commodity Name:</label>
+                    <input type="text" name="CommodityName" id="CommodityName" class="input-field">
+                    <label for="UnitPrice">UnitPrice:</label>
+                    <input type="number" name="UnitPrice" id="UnitPrice" class="input-field">
+                    <label for="UnitInStock">UnitInStock:</label>
+                    <input type="number" name="UnitInStock" id="UnitInStock" class="input-field">
+                    <label id="createCategoryId" for="CategoryId">Category:</label>
+                    <select name="CategoryId" id="CategoryId" class="form-control">
+                        <!-- Options will be dynamically added by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+
     @* search and filter *@
     <h3>Search Commodity</h3>
     @* Select category *@
-    <select id="mySelect">
-        <option value="1">Ðèn LED</option>
-        <option value="2">Cáp điện</option>
-        <option value="3">Ổ cắm điện</option>
-        <option value="4">Bộ công cụ điện</option>
-    </select>
-    @* search category *@
-    <input type="text" placeholder="Commodity name" id="commodityNameSearch" />
-    <input type="button" id="btnSearch" value="Search" />
+    <div class="d-flex justify-content-between">
+        <div>
+            <select id="mySelect">
+                <option value="1">Ðèn LED</option>
+                <option value="2">Cáp điện</option>
+                <option value="3">Ổ cắm điện</option>
+                <option value="4">Bộ công cụ điện</option>
+            </select>
+            @* search category *@
+            <input type="text" placeholder="Commodity name" id="commodityNameSearch" />
+            <input type="button" id="btnSearch" value="Search" />
+        </div>
+        <div>
+            <input type="button" id="btnCreate" value="Create"/>
+        </div>
+    </div>
 
     @* loading  *@
     <div id="loadingIndicator" style="display: none; text-align: center; font-size:30px; padding-top: 30px;">
@@ -138,6 +198,7 @@
         var htmlHeader = `
      <thead>
          <tr>
+                 <th><th>
                  <th>commodityName</th>
                  <th>unitPrice</th>
                  <th>unitInStock</th>
@@ -151,7 +212,11 @@
         data.forEach(item => {
             var htmlBody = `
                                             <tr>
-                                                <td>${item.commodityName}</td>
+                                                        <td><a href="#" data-id="${item.commodityId}" id="delete-btn">
+                                                       <i class="fa fa-trash"></i> 
+                                                    </a>
+                                                </td>
+                                                        <td><a href="javascript:void(0)" data-id="${item.commodityId}" id="EditBtn">${item.commodityName}</a></td>
                                                 <td>${item.unitPrice}</td>
                                                 <td>${item.unitInStock}</td>
                                                 <td>${item.categoryName}</td>
@@ -191,6 +256,95 @@
     span.onclick = function () {
         modal.style.display = "none";
     }
+
+
+    // js for editPopup
+    var popupEdit = $("#popupEdit");
+
+    $(document).on('click', '#EditBtn', async function () {
+        let id = $(this).attr('data-id');
+        await $.ajax({
+            url: `https://localhost:7194/api/Commodity/GetById/${id}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => {
+                popupEdit.show();
+                console.log(data.unitPrice)
+                $("#CommodityId").val(data.commodityId);
+                $("#CommodityName").val(data.commodityName);
+                $("#UnitPrice").val(data.unitPrice);
+                $("#UnitInStock").val(data.unitInStock);
+                $("#createCategoryId").val(data.categoryName);
+            },
+            error: () => { alert("not found data!") }
+        });
+    })
+
+    window.onclick = function (event) {
+        if (event.target == popupEdit[0]) {
+            popupEdit.hide();
+        }
+    }
+    $('.close').click(function () {
+        popupEdit.hide();
+    });
+
+    //show Popup Create
+    var createPopup = $("#modalCreate");
+
+    $('#btnCreate').click(async function () {
+        await $.ajax({
+            url: `https://localhost:7194/api/CommodityCategory/GetCommodityCategory`,
+            method: 'GET',
+            contentType: "application/json",
+            success: function (data) {
+                console.log(data);
+
+                // Clear existing options
+                $("#CategoryId").empty();
+
+                // Append new options
+                $.each(data, function (index, category) {
+                    $("#CategoryId").append($('<option>', {
+                        value: category.categoryId,
+                        text: category.categoryName
+                    }));
+                });
+
+                createPopup.show();
+            },
+            error: function () {
+                alert("Data not found!");
+            }
+        });
+    });
+
+    $('.close').click(function () {
+        createPopup.hide();
+    });
+
+    $(window).click(function (event) {
+        if (event.target == createPopup[0]) {
+            createPopup.hide();
+        }
+    });
+
+    //btn delete
+    $(document).on('click', '#delete-btn', async function () {
+        let id = $(this).attr('data-id');
+        await $.ajax({
+            url: `https://localhost:7194/api/Commodity/Delete/${id}`,
+            type: 'DELETE',
+            success: function (response) {
+                location.reload();
+                console.log('Mặt hàng đã được xóa thành công');
+            },
+            error: function (xhr, status, error) {
+                // Xử lý khi có lỗi xảy ra
+                console.error('Đã xảy ra lỗi khi xóa mặt hàng:', error);
+            }
+        });
+    })
 
 
     //btn search

@@ -13,23 +13,46 @@ namespace _06_FullName_Project.Controllers
             _context = context;
         }
 
-        [HttpGet("GetAllOrder")]
-        public ActionResult<List<ClassLibrary2.DTO.OrderDTO>> GetAllOrder()
+        [HttpGet("GetAllOrder/{id}")]
+        public ActionResult<List<ClassLibrary2.DTO.OrderDTO>> GetAllOrder(int id)
         {
-            List<ClassLibrary2.DTO.OrderDTO> orders = _context.Orders.Select(x => 
-            new ClassLibrary2.DTO.OrderDTO {
-                commodityId = x.CommodityId, 
-                commodityName = x.Commodity.CommodityName, 
-                //quantity = x.OrderDetails.ToList()[0].Quantity, 
-                //price = x.OrderDetails.ToList()[0].UnitPrice,
-                customerName = x.Customer.CustomerName, 
-                address = x.Customer.CustomerAddress, 
-                phoneNumber = x.Customer.CustomerPhone, 
+            List<ClassLibrary2.DTO.OrderDTO> orders = new List<ClassLibrary2.DTO.OrderDTO>();
+            if (id == 0)
+            {
+                orders = _context.Orders.Select(x =>
+            new ClassLibrary2.DTO.OrderDTO
+            {
+                commodityId = x.CommodityId,
+                commodityName = x.Commodity.CommodityName,
+                quantity = x.OrderDetails.ToList()[0].Quantity,
+                price = x.OrderDetails.ToList()[0].UnitPrice,
+                customerName = x.Customer.CustomerName,
+                address = x.Customer.CustomerAddress,
+                phoneNumber = x.Customer.CustomerPhone,
                 note = x.Customer.Comment,
                 userId = x.UserId,
                 status = x.PaymentMethod,
                 orderId = x.OrderId,
             }).ToList();
+            }
+            else
+            {
+                orders = _context.Orders.Where(x => x.UserId == id).Select(x =>
+            new ClassLibrary2.DTO.OrderDTO
+            {
+                commodityId = x.CommodityId,
+                commodityName = x.Commodity.CommodityName,
+                quantity = x.OrderDetails.ToList()[0].Quantity,
+                price = x.OrderDetails.ToList()[0].UnitPrice,
+                customerName = x.Customer.CustomerName,
+                address = x.Customer.CustomerAddress,
+                phoneNumber = x.Customer.CustomerPhone,
+                note = x.Customer.Comment,
+                userId = x.UserId,
+                status = x.PaymentMethod,
+                orderId = x.OrderId,
+            }).ToList();
+            }
             return orders;
         }
         [HttpPost("AddOrder")]
@@ -92,10 +115,19 @@ namespace _06_FullName_Project.Controllers
             OrderDetail orderDetail = _context.OrderDetails.FirstOrDefault(x => x.OrderId == orderDele.OrderId);
             _context.OrderDetails.Remove(orderDetail);
             _context.SaveChanges();
-            
-            _context.Orders.Remove(order);  
+
+            _context.Orders.Remove(order);
             _context.SaveChanges();
-         return Ok();
+            return Ok();
+        }
+        [HttpPost("ChangeStatusOrder")]
+        public ActionResult ChangeStatusOrder([FromBody] Order orderChangeStatus)
+        {
+            Order order = _context.Orders.FirstOrDefault(x => x.OrderId == orderChangeStatus.OrderId);
+            order.PaymentMethod = orderChangeStatus.PaymentMethod;
+            _context.Orders.Update(order);
+            _context.SaveChanges();
+            return Ok();
         }
     }
 }

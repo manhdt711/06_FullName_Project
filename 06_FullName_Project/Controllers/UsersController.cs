@@ -19,7 +19,7 @@ namespace eStoreAPI
             }
             return user;
         }
-        [HttpGet("Login")]
+        [HttpPost("Login")]
         public ActionResult<User> Login([FromBody] ElecStore.Models.User user)
         {
             User user1 = UserDAO.Login(user);

@@ -1,0 +1,147 @@
+﻿<h1>View</h1>
+<input type="hidden" id="userId"  value="1">
+
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-3">Edit Profile</h4>
+            </div>
+            <div class="card-body">
+                <form id="userForm">
+                    <div class="form-group row mb-3">
+                        <label for="UserName" >UserName</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="UserName" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="Email" >Email</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="Email" readonly>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-3">
+                        <label for="PhoneNumber">Phone Number</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="PhoneNumber" readonly>
+                        </div>
+                    </div>
+                </form>
+                <div class="row float-right p-3">
+                    <button id="editBtn" class="btn btn-primary">Edit</button>
+                    <button id="saveBtn" class="btn btn-success mb-3" style="display: none;">Save</button>
+                    <button id="cancelBtn" class="btn btn-danger" style="display: none;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-user">
+            <div class="card-image">
+                <img src="https://ununsplash.imgix.net/photo-1431578500526-4d9613015464?fit=crop&fm=jpg&h=300&q=75&w=400" alt="...">
+            </div>
+            <div class="card-body">
+                <div class="author">
+                    <a href="#">
+                        <img class="avatar border-gray" src="../assets/img/faces/face-3.jpg" alt="...">
+                        <h5 class="title" id="userNameLabel"></h5>
+                    </a>
+                    <p class="description" id="phoneLabel">
+                    </p>
+                </div>
+                <p class="description text-center" id="mailLabel">
+                </p>
+            </div>
+            <hr>
+            <div class="button-container mr-auto ml-auto">
+                <button href="#" class="btn btn-simple btn-link btn-icon">
+                    <i class="fa fa-facebook-square"></i>
+                </button>
+                <button href="#" class="btn btn-simple btn-link btn-icon">
+                    <i class="fa fa-twitter"></i>
+                </button>
+                <button href="#" class="btn btn-simple btn-link btn-icon">
+                    <i class="fa fa-google-plus-square"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    $(document).ready(() => {
+        getProfile();
+        $("#editBtn").click(function () {
+            enableEdit();
+        });
+        $("#saveBtn").click(function () {
+            saveChanges();
+        });
+        $("#cancelBtn").click(function () {
+            cancelEdit();
+        });
+    });
+
+    async function getProfile() {
+        try {
+            const id = 1;
+            const response = await $.ajax({
+                url: `https://localhost:7194/api/Users/GetUserById/${id}`,
+                method: 'GET',
+                contentType: "application/json"
+            });
+            $("#userId").val(response.userId);
+            $("#UserName").val(response.userName);
+            $("#Email").val(response.email);
+            $("#PhoneNumber").val(response.phoneNumber);
+                $("#userNameLabel").text(response.userName);
+                $("#phoneLabel").text(response.email);
+                $("#mailLabel").text(response.phoneNumber);
+        } catch (error) {
+            alert("not found data!");
+        }
+    }
+
+    function enableEdit() {
+        $("#UserName").prop("readonly", false);
+        $("#Email").prop("readonly", false);
+        $("#PhoneNumber").prop("readonly", false);
+        $("#editBtn").hide();
+        $("#saveBtn").show();
+        $("#cancelBtn").show();
+    }
+
+    function cancelEdit() {
+        $("#UserName").prop("readonly", true);
+        $("#Email").prop("readonly", true);
+        $("#PhoneNumber").prop("readonly", true);
+        $("#editBtn").show();
+        $("#saveBtn").hide();
+        $("#cancelBtn").hide();
+        // Revert changes if any
+        getProfile();
+    }
+
+    async function saveChanges() {
+        const id = $("#userId").val();
+        const data = {
+            userId: $("#userId").val(),
+            userName: $("#UserName").val(),
+            email: $("#Email").val(),
+            phoneNumber: $("#PhoneNumber").val()
+        };
+        try {
+            const response = await $.ajax({
+                url: `https://localhost:7194/api/Users/UpdateUser/${id}`,
+                method: 'PUT',
+                contentType: "application/json",
+                data: JSON.stringify(data)
+            });
+            alert("Changes saved successfully!");
+                $("#cancelBtn").click();
+        } catch (error) {
+            alert("Failed to save changes!");
+        }
+    }
+</script>

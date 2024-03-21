@@ -53,7 +53,7 @@ namespace eStoreClient.Controllers
 
             HttpResponseMessage response = await client.PostAsync($"{ApiCateUrl}/CreateCommodity", content);
             response.EnsureSuccessStatusCode();
-            return RedirectToAction(nameof(Index), "Home");
+            return RedirectToAction(nameof(Index), "Commodity");
         }
 
         [HttpPost]
@@ -64,22 +64,16 @@ namespace eStoreClient.Controllers
             {
                 try
                 {
-                    /* var jsonProduct = JsonSerializer.Serialize(model);
-                     var content = new StringContent(jsonProduct, Encoding.UTF8, "application/json");
-
-                     HttpResponseMessage response = await client.PutAsync($"{ApiCateUrl}/Update'", content);
-                     response.EnsureSuccessStatusCode();
-                     return RedirectToAction(nameof(Index), "Home");*/
                     CommodityDAO.UpdateCommodity(model);
                 }
                 catch (Exception ex)
                 {
-                    return RedirectToAction(nameof(Index), "Home");
+                    return RedirectToAction(nameof(Index), "Commodity");
 
                 }
             }
 
-            return RedirectToAction(nameof(Index), "Home");
+            return RedirectToAction(nameof(Index), "Commodity");
         }
 
     }

@@ -1,72 +1,307 @@
-﻿@model IEnumerable<ClassLibrary2.DTO.CommodityDTO>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<a asp-controller="Commodities" asp-action="Create">Create New</a>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Commodity Name
-            </th>
-            <th>
-                Unit Price
-            </th>
-            <th>
-                Unit In Stock
-            </th>
-            <th>
-                Category Name
-            </th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-</table>
-<script type="text/javascript">
-    $(document).ready(function () {
-        // Hàm này được gọi khi trang đã tải xong
-        function ShowAllCommodities() {
-            // Xóa bảng hiện có để chuẩn bị điền dữ liệu mới
-            $("table tbody").html("");
-            // Gửi yêu cầu AJAX để lấy danh sách hàng hóa từ API
-            $.ajax({
-                url: "https://localhost:7194/api/Commodity/GetCommodityManager", // URL của API để lấy dữ liệu hàng hóa
-                type: "get", // Phương thức HTTP là GET
-                contentType: "application/json; charset=utf-8",
-                dataType: "json", // Kiểu dữ liệu mong đợi là JSON
-                success: function (result, status, xhr) {
-                    // Callback được gọi khi yêu cầu thành công
-                    // Duyệt qua từng hàng hóa trong kết quả và thêm chúng vào bảng
-                    $.each(result, function (index, value) {
-                        var newRow = $("<tr>"); // Tạo một hàng mới
-                        // Điền dữ liệu hàng hóa vào từng ô trong hàng
-                        newRow.append($("<td>").html(value["commodityName"]));
-                        newRow.append($("<td>").html(value["unitPrice"]));
-                        newRow.append($("<td>").html(value["unitInStock"]));
-                        newRow.append($("<td>").html(value["categoryName"]));
-                        // Tạo một liên kết để cập nhật thông tin hàng hóa với CommodityId tương ứng
-                        newRow.append($("<td>").html("<a href='/Commodities/Edit?id=" + value["commodityId"] + "'>Edit</a>"));
-                        // Tạo nút xóa hàng hóa với CommodityId tương ứng
-                        newRow.append($("<td>").html("<a href='/Commodities/Delete?id=" + value["commodityId"] + "'>Delete</a>"));
-                        // Thêm hàng mới vào bảng
-                        $("table tbody").append(newRow);
-                    });
-                },
-                error: function (xhr, status, error) {
-                    // Callback được gọi khi có lỗi xảy ra trong quá trình gửi yêu cầu
-                    console.log(xhr);
-                }
-            });
+﻿﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <style>
+        /* The Modal (background) */
+        .form-column {
+            float: left;
+            width: 50%;
+            padding: 0 15px;
+            box-sizing: border-box;
         }
 
-        // Gọi hàm ShowAllCommodities() khi trang đã tải xong để hiển thị danh sách hàng hóa ban đầu
-        ShowAllCommodities();
+        .input-field {
+            width: 100%;
+            /* Set all input fields to 100% width */
+        }
+
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+        }
+
+        /* Modal Content/Box */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%;
+            /* Could be more or less, depending on screen size */
+        }
+
+        /* Close Button */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+        .red-trash {
+            color: rgb(255, 0, 0) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="popupEdit" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form asp-controller="Commodity" asp-action="Edit" id="commodityForm" method="post">
+                <div class="form-column">
+                    <label for="CommodityId">id </label>
+                    <input readonly type="text" name="CommodityId" id="CommodityIdEdit" class="form-control read">
+                    <label for="CommodityName">Commodity Name:</label>
+                    <input type="text" name="CommodityName" id="CommodityNameEdit" class="input-field">
+                    <label for="UnitPrice">UnitPrice:</label>
+                    <input type="number" name="UnitPrice" id="UnitPriceEdit" class="input-field">
+                    <label for="UnitInStock">UnitInStock:</label>
+                    <input type="number" name="UnitInStock" id="UnitInStockEdit" class="input-field">
+                    <label id="createCategoryId" for="CategoryId">Category:</label>
+                    <select name="CategoryIdEdit" id="CategoryIdEdit" class="form-control">
+                        <!-- Options will be dynamically added by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Edit" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="modalCreate" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form asp-controller="Commodity" asp-action="Create" id="commodityForm" method="post">
+                <div class="form-column">
+                    <label for="CommodityName">Commodity Name:</label>
+                    <input type="text" name="CommodityName" id="CommodityName" class="input-field">
+                    <label for="UnitPrice">UnitPrice:</label>
+                    <input type="number" name="UnitPrice" id="UnitPrice" class="input-field">
+                    <label for="UnitInStock">UnitInStock:</label>
+                    <input type="number" name="UnitInStock" id="UnitInStock" class="input-field">
+                    <label id="createCategoryId" for="CategoryId">Category:</label>
+                    <select name="CategoryIdCreate" id="CategoryIdCreate" class="form-control">
+                        <!-- Options will be dynamically added by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row p-3 card">
+        <div class="text-right">
+            <input type="button" id="btnCreate" value="Create" class="btn btn-outline-primary"/>
+        </div>
+    </div>
+    <div class="row p-3 card">
+        <div class="card strpied-tabled-with-hover">
+            <div class="card-body table-full-width table-responsive">
+                <table id="table-gg" class="table table-hover"></table>
+            </div>
+        </div>
+
+    </div>
+    <div class="card strpied-tabled-with-hover">
+        <div class="card-body table-full-width table-responsive">
+            <table id="table-gg" class="table table-hover"></table>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(() => {
+            getAllCommodity();
+        });
+
+        // Function to get all commodities
+        const getAllCommodity = () => {
+            $.ajax({
+                url: "https://localhost:7194/api/Commodity/GetCommodityManager",
+                method: 'GET',
+                contentType: "application/json",
+                success: (data) => {
+                    loadTableData(data);
+                },
+                error: () => {
+                    alert("Data not found!");
+                }
+            });
+        };
+
+        // Function to load data into table
+        const loadTableData = (data) => {
+            // Clear table
+            $("#table-gg").empty();
+
+            // Add table header
+            $("#table-gg").append(`
+                      <thead>
+                        <tr>
+                          <th style="width: 50px"></th>
+                          <th>Commodity Name</th>
+                          <th>Unit Price</th>
+                          <th>Unit In Stock</th>
+                          <th>Category Name</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                    `);
+
+            // Add table rows
+            data.forEach(item => {
+                $("#table-gg tbody").append(`
+                        <tr>
+                                  <td><a href="#" data-id="${item.commodityId}" class="delete-btn"><i class="fa fa-trash red-trash"></i></a></td>
+                          <td><a href="#" data-id="${item.commodityId}" class="edit-btn">${item.commodityName}</a></td>
+                          <td>${item.unitPrice}</td>
+                          <td>${item.unitInStock}</td>
+                          <td>${item.categoryName}</td>
+                        </tr>
+                      `);
+            });
+
+            $("#table-gg").append("</tbody>");
+        };
+
+        //show Popup Create
+        var createPopup = $("#modalCreate");
+        $('#btnCreate').click(async function () {
+            await $.ajax({
+                url: `https://localhost:7194/api/CommodityCategory/GetCommodityCategory`,
+                method: 'GET',
+                contentType: "application/json",
+                success: function (data) {
+                    console.log(data);
+                    // Clear existing options
+                    $("#CategoryIdCreate").empty();
+                    // Append new options
+                    $.each(data, function (index, category) {
+                        $("#CategoryIdCreate").append($('<option>', {
+                            value: category.categoryId, text: category.categoryName
+                        }));
+                    });
+                    createPopup.show();
+                }, error: function () {
+                    alert("Data not found!");
+                }
+            });
+        });
+
+        //btn delete
+        $(document).on('click', '.delete-btn', async function () {
+            let id = $(this).attr('data-id');
+            await $.ajax({
+                url: `https://localhost:7194/api/Commodity/Delete/${id}`,
+                type: 'DELETE',
+                success: function (response) {
+                    location.reload();
+                    console.log('Mặt hàng đã được xóa thành công');
+                },
+                error: function (xhr, status, error) {
+                    console.error('Đã xảy ra lỗi khi xóa mặt hàng:', error);
+                }
+            });
+        })
+
+        var popupEdit = $("#popupEdit");
+
+$(document).on('click', '.edit-btn', async function () {
+    let id = $(this).attr('data-id');
+
+    // Gọi API để lấy danh mục
+    await $.ajax({
+        url: 'https://localhost:7194/api/CommodityCategory/GetCommodityCategory',
+        method: 'GET',
+        contentType: "application/json",
+        success: function (categories) {
+            // Hiển thị popup khi dữ liệu được tải xong
+            popupEdit.show();
+
+            // Lấy dữ liệu của mặt hàng cần chỉnh sửa
+            $.ajax({
+                url: `https://localhost:7194/api/Commodity/GetById/${id}`,
+                method: 'GET',
+                contentType: "application/json",
+                success: function (data) {
+                    console.log(data.UnitPrice);
+
+                    // Điền dữ liệu vào các trường của popup
+                    $("#CommodityIdEdit").val(data.commodityId);
+                    $("#CommodityNameEdit").val(data.commodityName);
+                    $("#UnitPriceEdit").val(data.unitPrice);
+                    $("#UnitInStockEdit").val(data.unitInStock);
+                    $("#CreateCategoryIdEdit").text(data.categoryName);
+
+                    // Xóa tất cả các lựa chọn cũ
+                    $("#CategoryIdEdit").empty();
+
+                    // Thêm lựa chọn mới từ danh sách danh mục được tải
+                    categories.forEach(function (category) {
+                        $("#CategoryIdEdit").append($('<option>', {
+                            value: category.categoryId,
+                            text: category.categoryName
+                        }));
+                    });
+
+                    // Chọn danh mục tương ứng với sản phẩm
+                    $("#CategoryIdEdit").val(data.categoryId);
+                },
+                error: function () {
+                    alert("not found data!");
+                }
+            });
+        },
+        error: function () {
+            alert("Failed to load categories.");
+        }
     });
-</script>
+});
+
+
+
+        $(window).click(function (event) {
+            if (event.target == popupEdit[0]) {
+                popupEdit.hide();
+            } else if (event.target == createPopup[0]) {
+                createPopup.hide();
+            }
+        });
+
+        $(document).on('click', '.close', function () {
+            popupEdit.hide();
+            createPopup.hide();
+        });
+
+    </script>
+</body>
+</html>

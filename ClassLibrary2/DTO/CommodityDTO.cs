@@ -12,6 +12,7 @@ namespace ClassLibrary2.DTO
         public string? CommodityName { get; set; }
         public decimal? UnitPrice { get; set; }
         public int? UnitInStock { get; set; }
+        public int? CategoryID { get; set; }
         public string? CategoryName { get; set; }
     }
 }

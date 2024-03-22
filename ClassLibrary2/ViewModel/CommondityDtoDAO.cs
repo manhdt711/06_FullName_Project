@@ -21,6 +21,7 @@ namespace ClassLibrary2.ViewModel
                             CommodityName = c.CommodityName,
                             UnitPrice = c.UnitPrice ?? 0, // Handling nullable value
                             UnitInStock = c.UnitInStock ?? 0, // Handling nullable value
+                            CategoryID = c.Category != null ? c.CategoryId.Value : -1,
                             CategoryName = c.Category != null ? c.Category.CategoryName : "Uncategorized" // Handling null category without null propagating operator
                         })
                         .ToList();
@@ -50,6 +51,7 @@ namespace ClassLibrary2.ViewModel
                         commodityDTO.CommodityName = commodity.CommodityName;
                         commodityDTO.UnitPrice = commodity.UnitPrice ?? -1;
                         commodityDTO.UnitInStock = commodity.UnitInStock ?? -1;
+                        commodityDTO.CategoryID = commodity.CategoryId;
                         commodityDTO.CategoryName = commodity.CommodityName;
                     }
                 }

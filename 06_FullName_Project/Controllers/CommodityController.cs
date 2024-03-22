@@ -1,4 +1,5 @@
 ﻿
+using ClassLibrary2.DTO;
 using ClassLibrary2.ViewModel;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using ElecStore.Models;
@@ -57,8 +58,16 @@ namespace eStoreAPI
         [HttpGet("GetByCategoryId/{categoryId}")]
         public IActionResult GetByCategoryId(int categoryId)
         {
-            List<ClassLibrary2.DTO.CommodityDTO> commodityDTO = CommondityDtoDAO.GetCommodityDTOByCategoryId(categoryId);
-            return Ok(commodityDTO);
+            if (categoryId == -1)
+            {
+                return Ok(CommondityDtoDAO.GetCommodityDTO());
+            }
+            else
+            {
+                List<ClassLibrary2.DTO.CommodityDTO> commodityDTO = null;
+                commodityDTO = CommondityDtoDAO.GetCommodityDTOByCategoryId(categoryId);
+                return Ok(commodityDTO);
+            }
         }
         [HttpPost("CreateCommodity")]
         public IActionResult PostCommodity(Commodity c)

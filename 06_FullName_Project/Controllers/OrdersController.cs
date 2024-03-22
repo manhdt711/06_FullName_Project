@@ -1,5 +1,6 @@
 ﻿using ElecStore.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace _06_FullName_Project.Controllers
 {
@@ -45,6 +46,7 @@ namespace _06_FullName_Project.Controllers
                 quantity = x.OrderDetails.ToList()[0].Quantity,
                 price = x.OrderDetails.ToList()[0].UnitPrice,
                 customerName = x.Customer.CustomerName,
+                promotionId = x.PromotionId,
                 address = x.Customer.CustomerAddress,
                 phoneNumber = x.Customer.CustomerPhone,
                 note = x.Customer.Comment,
@@ -99,7 +101,9 @@ namespace _06_FullName_Project.Controllers
                 PaymentMethod = "pending",
                 PricedProducts = (int)orderDTO.price,
                 Date = date,
+                PromotionId = orderDTO.promotionId,
                 Customer = customer,
+                User = _context.Users.FirstOrDefault(x => x.UserId == orderDTO.userId),
                 OrderDetails = orderDetail,
                 UserId = orderDTO.userId
             };

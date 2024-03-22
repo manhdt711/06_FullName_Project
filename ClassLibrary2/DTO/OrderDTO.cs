@@ -11,6 +11,7 @@ namespace ClassLibrary2.DTO
         public string? commodityName { get; set; }
         public int? quantity { get; set; }
         public decimal? price { get; set; }
+        public int? promotionId { get; set; }
         public string? customerName { get; set; }
         public string? address { get; set; }
         public string? phoneNumber { get; set; }

@@ -97,7 +97,7 @@
     const getAllOrder = () => {
         $('#loadingIndicator').show();
         $.ajax({
-            url: `https://localhost:7194/api/Orders/GetAllOrder/{@ViewBag.UserId}`,
+            url: `https://localhost:7194/api/Orders/GetAllOrder/${@ViewBag.UserId}`,
             method: 'GET',
             contentType: "application/json",
             success: (data) => { loadTableData(data); },

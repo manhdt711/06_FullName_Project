@@ -24,6 +24,7 @@ namespace _06_FullName_Project_WebApp.Controllers
 
         public IActionResult Index()
         {
+            ViewBag.UserId = HttpContext.Session.GetInt32("UserId");
             return View();
         }
 
@@ -39,12 +40,12 @@ namespace _06_FullName_Project_WebApp.Controllers
         }
         public async Task<IActionResult> Order(string commodityName, int quantity, int price, string customerName, string address, string phoneNumber, string note, int commodityId, string promo)
         {
-            ElecStore.Models.Promotion pr = new ElecStore.Models.Promotion();
+            int pr = 0;
             if (promo != null)
             {
-                HttpResponseMessage respone1 = await client.GetAsync($"{urlPromo}/GetByCode/${promo}");
+                HttpResponseMessage respone1 = await client.GetAsync($"{urlPromo}/GetByCode/{promo}");
                 string strData1 = await respone1.Content.ReadAsStringAsync();
-                pr = JsonConvert.DeserializeObject<ElecStore.Models.Promotion>(strData1);
+                pr = JsonConvert.DeserializeObject<ElecStore.Models.Promotion>(strData1).PromotionId;
             }
             OrderDTO orderDTO = new OrderDTO()
             {
@@ -52,7 +53,7 @@ namespace _06_FullName_Project_WebApp.Controllers
                 commodityName = commodityName,
                 quantity = quantity,
                 price = price,
-                promotionId = pr == null ? null : pr.PromotionId,
+                promotionId = pr,
                 customerName = customerName,
                 address = address,
                 phoneNumber = phoneNumber,

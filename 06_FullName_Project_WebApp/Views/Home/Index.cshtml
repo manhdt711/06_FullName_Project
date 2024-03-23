@@ -56,7 +56,7 @@
     </style>
 </head>
 <body>
-
+    <h1>@ViewBag.hhh</h1>
     <!-- The Modal -->
     <div id="myModal" class="modal">
         <!-- Modal content -->
@@ -65,13 +65,13 @@
             <form asp-action="Order" id="orderForm">
                 <div class="form-column">
                     <label for="commodityName">Commodity Name:</label><br>
-                    <input disabled type="text" id="commodityName" name="commodityName" class="input-field" required><br><br>
+                    <input readonly type="text" id="commodityName" name="commodityName" class="input-field" required><br><br>
                     @* save id of commodity *@
-                    <input dis style="display:none;" type="text" id="commodityId" name="commodityId" class="input-field" required><br><br>
+                    <input style="display:none;" type="text" id="commodityId" name="commodityId" class="input-field" required><br><br>
 
 
                     <label for="price">Price:</label><br>
-                    <input type="number" disabled id="price" name="price" class="input-field" required><br><br>
+                    <input type="number" readonly id="price" name="price" class="input-field" required><br><br>
 
                     <label for="quantity">Quantity:</label><br>
                     <input type="number" id="quantity" name="quantity" class="input-field" required><br><br>
@@ -79,7 +79,7 @@
                     <label for="promo">Promotion:</label><br>
                     <input type="text" id="promo" name="promo" class="input-field"><br><br>
                     <label for="total">Total payment:</label><br>
-                    <input disabled type="text" id="total" name="total" class="input-field"><br><br>
+                    <input readonly type="text" id="total" name="total" class="input-field"><br><br>
                 </div>
 
                 <div class="form-column">
@@ -126,6 +126,17 @@
     <table id="table-gg" class="table">
     </table>
 </body>
+@if (ViewBag.UserId == null)
+{
+    <script>
+        $(document).on('click', '#myModalBtn', async function () {
+            // JavaScript code to display an alert and redirect
+            alert("You need to login first");
+            window.location.href = '/login';
+        })
+
+    </script>
+}
 <script src="../lib/jquery/dist/jquery.min.js"></script>
 <script src="../lib/jquery/dist/jquery.js"></script>
 
@@ -242,6 +253,7 @@
                 method: 'GET',
                 contentType: "application/json",
                 success: (data) => {
+                    alert("Promotion valid!")
                     promoExist = data.discount;
                     $("#total").val(price * quantity - promoExist);
                     $('#btnOrder').hide();
@@ -251,7 +263,7 @@
                     $("#total").val(price * quantity - promoExist);
                     $('#btnOrder').hide();
                     $('#btnsubmitOrder').show(); 
-                    alert("Promotion code not exist!")
+                    alert("Promotion code not exist!");
                 }
             });
         }

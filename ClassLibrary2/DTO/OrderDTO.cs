@@ -18,5 +18,6 @@ namespace ClassLibrary2.DTO
         public string? note { get; set; }
         public int? userId { get; set; }
         public string? status { get; set;}
+        public string? TotalPayment { get; set; }
     }
 }

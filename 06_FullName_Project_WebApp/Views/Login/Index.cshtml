@@ -62,48 +62,50 @@
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close">&times;</span>
-            <form asp-action="createUser" id="createUser">
-                    <h3>Create new user</h3>
+            <form asp-action="CreateUser" method="post">
+                <h3>Create new user</h3>
+                <div class="form-group">
                     <label for="newUserName">User Name:</label><br>
                     <input type="text" id="newUserName" name="newUserName" class="input-field" required><br><br>
+                </div>
 
-                    <label for="newEmail">Email:</label><br>
-                    <input type="email" id="newEmail" name="newEmail" class="input-field" required><br><br>
+                <div class="form-group">
+                    <label for="newPassword">Password:</label><br>
+                    <input type="password" id="newPassword" name="newPassword" class="input-field" required><br><br>
+                    <span id="passwordLengthValidation" class="text-danger" style="display: none;">Password must be at least 8 characters long.</span>
+                </div>
 
-                    <label for="newPhoneNumber">Phone Number:</label><br>
-                    <input type="number" id="newPhoneNumber" name="newPhoneNumber" class="input-field" required><br><br>
+                
 
-                    <input style="width: 200px;" type="submit" value="Create" />
+                <input style="width: 200px;" type="submit" value="Create" />
             </form>
-
         </div>
-
     </div>
-<h1 style="text-align:center;width:100%;">Book Stores</h1>
+<h1 style="text-align:center;width:100%;">Welcome</h1>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">Login</div>
                 <div class="card-body">
                     <form asp-action="Login">
-                        <div class="form-group">
-                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                            <label asp-for="UserName">UserName:</label>
-                            <input type="text" asp-for="UserName" class="form-control" required />
-                            <span asp-validation-for="UserName" class="text-danger"></span>
+                            <div class="form-group">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <label asp-for="UserName">UserName:</label>
+                                <input type="text" asp-for="UserName" class="form-control" required />
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
 
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Password">Password:</label>
-                            <input type="password" asp-for="Password" class="form-control" required />
-                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <div class="form-group">
+                                <label asp-for="Password">Password:</label>
+                                <input type="password" asp-for="Password" class="form-control" required />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                                
+                            </div>
 
-                        </div>
                         <button style="margin-top: 10px" type="submit" class="btn btn-primary btn-block m">Login</button>
                     </form>
-                        @if (ViewBag.ErrorLogin == "loginFail")
+                        @if (ViewBag.ErrorLogin)
                         {
                             <h7 style="color:red">Login fail! please check again your username and password</h7>
 
@@ -111,7 +113,16 @@
 
                             <br>
                         }
-                        <a href ="javascript:void(0)" id="myModalBtn">Sign up?</a>
+                        @if (ViewBag.UserNameExists)
+                        {
+                            <h4 style="color:red">User name already exists!</h4>
+
+                            <br>
+
+                            <br>
+                        }
+                        <a href="javascript:void(0)" id="myModalBtn">Sign up?</a>
+
                 </div>
             </div>
         </div>
@@ -123,27 +134,36 @@
 <script src="../lib/jquery/dist/jquery.js"></script>
 
 <script>
-    console.log(@ViewBag.ErrorLogin)
-    $(document).ready(() => {
-       
-    });
+    $(document).ready(function () {
+        var modal = $("#myModal");
+        var btn = $("#myModalBtn");
+        var span = $(".close");
 
-    // js for modal
-    var modal = document.getElementById("myModal");
-    var span = document.getElementsByClassName("close")[0];
+        btn.click(function () {
+            modal.css("display", "block");
+        });
 
-    $(document).on('click', '#myModalBtn', async function () {
-        modal.style.display = "block";
-    })
+        span.click(function () {
+            modal.css("display", "none");
+        });
 
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        window.onclick = function (event) {
+            if (event.target == modal[0]) {
+                modal.css("display", "none");
+            }
         }
-    }
-    span.onclick = function () {
-        modal.style.display = "none";
-    }
+
+        $("#newPassword").keyup(function () {
+            var password = $(this).val();
+            var passwordLengthValidation = $("#passwordLengthValidation");
+
+            if (password.length < 8) {
+                passwordLengthValidation.css("display", "inline");
+            } else {
+                passwordLengthValidation.css("display", "none");
+            }
+        });
+    });
 
 
 </script>

@@ -64,6 +64,23 @@ namespace ClassLibrary2.ViewModel
             return user;
         }
 
+        public static User FindUserByUserName(string userName)
+        {
+            User user;
+            try
+            {
+                using (var context = new ElectricStore1Context())
+                {
+                    user = context.Users.SingleOrDefault(u => u.UserName.ToLower() == userName.ToLower());
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return user;
+        }
+
         public static User FindUserByEmail(string email)
         {
             User user;

@@ -1,7 +1,9 @@
 ﻿
 using ClassLibrary2.ViewModel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using ElecStore.Models;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 
 namespace eStoreAPI
 {
@@ -45,6 +47,38 @@ namespace eStoreAPI
 
             UserDAO.UpdateUser(existingUser);
 
+            return NoContent();
+        }
+        [HttpGet("GetUserByUserName/{userName}")]
+        public ActionResult<User> GetUserById(string userName)
+        {
+            var user = UserDAO.FindUserByUserName(userName);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return user;
+        }
+        [HttpGet("GetAllUser")]
+        public ActionResult<User> GetAllUser()
+        {
+            return Ok(UserDAO.GetUsers());
+        }
+        [HttpPost("Create")]
+        public IActionResult PostMember(User userRequest)
+        {
+            UserDAO.SaveUser(userRequest);
+            return NoContent();
+        }
+        [HttpDelete("DeleteUser/{id}")]
+        public IActionResult DeleteMember(int id)
+        {
+            var p = UserDAO.FindUserById(id);
+            if (p == null)
+            {
+                return NotFound();
+            }
+            UserDAO.DeleteUser(p);
             return NoContent();
         }
     }

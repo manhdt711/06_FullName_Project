@@ -1,1 +1,88 @@
 ﻿
+<h1>User List</h1>
+
+<!-- User table -->
+<table id="userTable" class="table">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Password</th>
+            <th>Store ID</th>
+            <th>Phone Number</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody id="userList">
+        <!-- User rows will be added dynamically here -->
+    </tbody>
+</table>
+
+<script>
+    // Call function to get user list when the page is loaded
+    $(document).ready(function () {
+        getUserList();
+    });
+
+    // Function to fetch user list from API
+    function getUserList() {
+        $.ajax({
+            url: "https://localhost:7194/api/Users/GetAllUser",
+            method: 'GET',
+            success: function (data) {
+                displayUserList(data);
+            },
+            error: function () {
+                alert("Unable to fetch user list!");
+            }
+        });
+    }
+
+    // Function to display user list on the page
+    function displayUserList(users) {
+        $('#userList').empty(); // Clear existing user list before adding new ones
+
+        // Loop through each user and add them to the table
+        users.forEach(function (user) {
+            var row = $('<tr></tr>');
+            row.append('<td>' + user.userName + '</td>');
+            row.append('<td>' + user.email + '</td>');
+            row.append('<td>' + user.password + '</td>');
+            row.append('<td>' + user.storeId + '</td>');
+            row.append('<td>' + user.phoneNumber + '</td>');
+
+            // Add delete button with user ID as data attribute
+            var deleteBtn = $('<button class="btn btn-danger btn-sm">Delete</button>');
+            deleteBtn.attr('data-id', user.userId);
+
+            // Handle delete button click event
+            deleteBtn.click(function () {
+                deleteUser($(this).attr('data-id'));
+            });
+
+            // Append delete button to the row
+            var actionCell = $('<td></td>');
+            actionCell.append(deleteBtn);
+            row.append(actionCell);
+
+            // Append the row to the user list table
+            $('#userList').append(row);
+        });
+    }
+
+    // Function to delete a user
+    function deleteUser(userId) {
+        $.ajax({
+            url: `https://localhost:7194/api/Users/DeleteUser/${userId}`,
+            method: 'DELETE',
+            success: function (response) {
+                alert("User has been deleted successfully!");
+                // Refresh the user list after successful deletion
+                getUserList();
+            },
+            error: function () {
+                alert("Error occurred while deleting the user!");
+            }
+        });
+    }
+</script>

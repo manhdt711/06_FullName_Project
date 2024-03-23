@@ -97,7 +97,7 @@
 
     async function getProfile() {
         try {
-            const id = 1;
+                const id = $("#userId").val();
             const response = await $.ajax({
                 url: `https://localhost:7194/api/Users/GetUserById/${id}`,
                 method: 'GET',
@@ -120,6 +120,7 @@
         $("#UserName").prop("readonly", false);
         $("#Email").prop("readonly", false);
         $("#PhoneNumber").prop("readonly", false);
+            $("#Password").prop("readonly", false);
         $("#editBtn").hide();
         $("#saveBtn").show();
         $("#cancelBtn").show();
@@ -129,6 +130,7 @@
         $("#UserName").prop("readonly", true);
         $("#Email").prop("readonly", true);
         $("#PhoneNumber").prop("readonly", true);
+            $("#Password").prop("readonly", true);
         $("#editBtn").show();
         $("#saveBtn").hide();
         $("#cancelBtn").hide();
@@ -143,7 +145,7 @@
             userName: $("#UserName").val(),
             email: $("#Email").val(),
             phoneNumber: $("#PhoneNumber").val(),
-                password: $("#Password").val()
+            password: $("#Password").val()
         };
         try {
             const response = await $.ajax({

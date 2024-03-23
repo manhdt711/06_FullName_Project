@@ -44,6 +44,7 @@ namespace eStoreAPI
             existingUser.UserName = updatedUser.UserName;
             existingUser.Email = updatedUser.Email;
             existingUser.PhoneNumber = updatedUser.PhoneNumber;
+            existingUser.Password = updatedUser.Password;
 
             UserDAO.UpdateUser(existingUser);
 

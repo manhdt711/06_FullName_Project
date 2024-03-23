@@ -12,16 +12,19 @@ namespace _06_FullName_Project_WebApp.Controllers
     {
         private readonly HttpClient client = null;
         private string url = "";
+        private string urlPromo = "";
         public HomeController()
         {
             client = new HttpClient();
             var contentType = new MediaTypeWithQualityHeaderValue("application/json");
             client.DefaultRequestHeaders.Accept.Add(contentType);
             url = "https://localhost:7194/api/Orders";
+            urlPromo = "https://localhost:7194/api/Promotion";
         }
 
         public IActionResult Index()
         {
+            ViewBag.UserId = HttpContext.Session.GetInt32("UserId");
             return View();
         }
 
@@ -35,25 +38,34 @@ namespace _06_FullName_Project_WebApp.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-        public async Task<IActionResult> Order(string commodityName, int quantity, int price, string customerName, string address, string phoneNumber, string note, int commodityId)
+        public async Task<IActionResult> Order(string commodityName, int quantity, int price, string customerName, string address, string phoneNumber, string note, int commodityId, string promo)
         {
-            OrderDTO orderDTO = new OrderDTO() { 
-            commodityId = commodityId,
-            commodityName = commodityName,
-            quantity = quantity,
-            price = price,
-            customerName = customerName,
-            address = address,
-            phoneNumber = phoneNumber,
-            note = note,
-            userId = HttpContext.Session.GetInt32("UserId")
+            int pr = 0;
+            if (promo != null)
+            {
+                HttpResponseMessage respone1 = await client.GetAsync($"{urlPromo}/GetByCode/{promo}");
+                string strData1 = await respone1.Content.ReadAsStringAsync();
+                pr = JsonConvert.DeserializeObject<ElecStore.Models.Promotion>(strData1).PromotionId;
+            }
+            OrderDTO orderDTO = new OrderDTO()
+            {
+                commodityId = commodityId,
+                commodityName = commodityName,
+                quantity = quantity,
+                price = price,
+                promotionId = pr,
+                customerName = customerName,
+                address = address,
+                phoneNumber = phoneNumber,
+                note = note,
+                userId = HttpContext.Session.GetInt32("UserId")
             };
             HttpResponseMessage respone = await client.PostAsJsonAsync($"{url}/AddOrder", orderDTO);
             string strData = await respone.Content.ReadAsStringAsync();
             ElecStore.Models.User userLogin = JsonConvert.DeserializeObject<ElecStore.Models.User>(strData);
             //HttpContext.Session.SetInt32("userId", userLogin.UserId);
             //demo 
-        
+
 
             return RedirectToAction(nameof(Index));
         }

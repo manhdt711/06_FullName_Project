@@ -97,11 +97,11 @@
     const getAllOrder = () => {
         $('#loadingIndicator').show();
         $.ajax({
-            url: `https://localhost:7194/api/Orders/GetAllOrder/{@ViewBag.UserId}`,
+            url: `https://localhost:7194/api/Orders/GetAllOrder/${@ViewBag.UserId}`,
             method: 'GET',
             contentType: "application/json",
-            success: (data) => { loadTableData(data); },
-            error: () => { alert("not found data!") }
+            success: (data) => { loadTableData(data);console.log(data) },
+            error: () => {}
         })
     }
     const loadTableData = (data) => {
@@ -112,6 +112,7 @@
                                                  <th>commodityName</th>
                                                  <th>quantity</th>
                                                  <th>price</th>
+                                                 <th style="color: red">Tototal payment</th>
                                                  <th>customerName</th>
                                                  <th>address</th>
                                                  <th>phoneNumber</th>
@@ -128,11 +129,12 @@
                                                                         <tr>
                                                                             <td>${item.commodityName}</td>
                                                                             <td>${item.quantity}</td>
-                                                                            <td>${item.price}</td>
+                                                                            <td>${item.price} VND</td>
+                                                                            <td>${(item.promotionId == 0) ? item.totalPayment + " VND" : item.totalPayment + " VND (have discount)"}</td>
                                                                             <td>${item.customerName}</td>
                                                                             <td>${item.address}</td>
                                                                             <td>${item.phoneNumber}</td>
-                                                                            <td>${item.note}</td>
+                                                                            <td>${(item.note == null) ? "":item.note}</td>
                                                                             <td>${item.status}</td>
                                                                             `;
             if (@ViewBag.UserId == 0) {

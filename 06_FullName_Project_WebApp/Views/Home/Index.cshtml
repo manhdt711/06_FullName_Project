@@ -33,10 +33,10 @@
         /* Modal Content/Box */
         .modal-content {
             background-color: #fefefe;
-            margin: 15% auto; /* 15% from the top and centered */
+            margin: 10% auto; /* 15% from the top and centered */
             padding: 20px;
             border: 1px solid #888;
-            width: 60%; /* Could be more or less, depending on screen size */
+            width: 80%; /* Could be more or less, depending on screen size */
         }
 
         /* Close Button */
@@ -56,7 +56,7 @@
     </style>
 </head>
 <body>
-
+    <h1>@ViewBag.hhh</h1>
     <!-- The Modal -->
     <div id="myModal" class="modal">
         <!-- Modal content -->
@@ -65,16 +65,21 @@
             <form asp-action="Order" id="orderForm">
                 <div class="form-column">
                     <label for="commodityName">Commodity Name:</label><br>
-                    <input type="text" id="commodityName" name="commodityName" class="input-field" required><br><br>
+                    <input readonly type="text" id="commodityName" name="commodityName" class="input-field" required><br><br>
                     @* save id of commodity *@
                     <input style="display:none;" type="text" id="commodityId" name="commodityId" class="input-field" required><br><br>
 
 
                     <label for="price">Price:</label><br>
-                    <input type="number" id="price" name="price" class="input-field" required><br><br>
+                    <input type="number" readonly id="price" name="price" class="input-field" required><br><br>
 
                     <label for="quantity">Quantity:</label><br>
                     <input type="number" id="quantity" name="quantity" class="input-field" required><br><br>
+
+                    <label for="promo">Promotion:</label><br>
+                    <input type="text" id="promo" name="promo" class="input-field"><br><br>
+                    <label for="total">Total payment:</label><br>
+                    <input readonly type="text" id="total" name="total" class="input-field"><br><br>
                 </div>
 
                 <div class="form-column">
@@ -89,10 +94,13 @@
 
                     <label for="note">Note:</label><br>
                     <textarea id="note" name="note" class="input-field"></textarea><br><br>
+            
+                        <input style="width: 200px;" type="button" id="btnOrder" value="Order" /> <input style="display: none; width: 200px;" id="btnsubmitOrder" type="submit" value="Confirm">
+                   
                 </div>
-
-                <input type="submit" value="Order">
+                
             </form>
+
         </div>
 
     </div>
@@ -178,6 +186,17 @@
     <table id="table-gg" class="table">
     </table>
 </body>
+@if (ViewBag.UserId == null)
+{
+    <script>
+        $(document).on('click', '#myModalBtn', async function () {
+            // JavaScript code to display an alert and redirect
+            alert("You need to login first");
+            window.location.href = '/login';
+        })
+
+    </script>
+}
 <script src="../lib/jquery/dist/jquery.min.js"></script>
 <script src="../lib/jquery/dist/jquery.js"></script>
 
@@ -232,6 +251,9 @@
     var span = document.getElementsByClassName("close")[0];
 
     $(document).on('click', '#myModalBtn', async function () {
+        $('#promo').val("");
+        $('#price').val("");
+        $('#quantity').val("");
         let id = $(this).attr('data-id');
         await $.ajax({
             url: `https://localhost:7194/api/Commodity/GetById/${id}`,
@@ -247,6 +269,10 @@
             error: () => { alert("not found data!") }
         });
         modal.style.display = "block";
+    })
+
+    $(document).on('click', '#btnsubmitOrder', async function () {
+       alert("add new order!")
     })
 
     window.onclick = function (event) {
@@ -364,7 +390,37 @@
             });
         }
     });
-
+    //btn order
+    $(document).on('click', '#btnOrder', async () => {
+        let promo = $('#promo').val();
+        let price = $('#price').val();
+        let quantity = $('#quantity').val();
+        var promoExist = 0;
+        if (promo !== "") {
+            await $.ajax({
+                url: `https://localhost:7194/api/Promotion/GetByCode/${promo}`,
+                method: 'GET',
+                contentType: "application/json",
+                success: (data) => {
+                    alert("Promotion valid!")
+                    promoExist = data.discount;
+                    $("#total").val(price * quantity - promoExist);
+                    $('#btnOrder').hide();
+                    $('#btnsubmitOrder').show();
+                },
+                error: () => {
+                    $("#total").val(price * quantity - promoExist);
+                    $('#btnOrder').hide();
+                    $('#btnsubmitOrder').show(); 
+                    alert("Promotion code not exist!");
+                }
+            });
+        }
+        $("#total").val(price * quantity - promoExist);
+        $('#btnOrder').hide();
+        $('#btnsubmitOrder').show();
+    });
+    
     // selection change
     $(document).on('change', '#mySelect', async function () {
         var selectedOption = $(this).val();

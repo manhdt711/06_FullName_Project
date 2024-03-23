@@ -1,5 +1,4 @@
-﻿using ClassLibrary2.ViewModel;
-using ElecStore.Models;
+﻿using ElecStore.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace _06_FullName_Project.Controllers
@@ -17,7 +16,7 @@ namespace _06_FullName_Project.Controllers
         [HttpGet("GetAllPromotions")]
         public ActionResult<IEnumerable<ElecStore.Models.Promotion>> GetAllPromotions()
         {
-           return _context.Promotions.ToList();
+            return _context.Promotions.ToList();
         }
         [HttpGet("Delete/{id}")]
         public IActionResult DeletePromotion(int id)
@@ -30,12 +29,18 @@ namespace _06_FullName_Project.Controllers
             }
             return NoContent();
         }
-        [HttpPost("Update")]
-        public IActionResult UpdatePromotion(Promotion c)
+        [HttpGet("GetByCode/{code}")]
+        public IActionResult GetByCode(string code)
         {
-            _context.Promotions.Add(c);
-            _context.SaveChanges();
-            return NoContent();
+            Promotion promotion = _context.Promotions.FirstOrDefault(x => x.PromotionName.Equals(code));
+            if (promotion != null)
+            {
+                return Ok(promotion);
+            }
+            else {
+                return NotFound();
+            }
+
         }
         [HttpPost("Create")]
         public IActionResult CreatePromotion(Promotion c)

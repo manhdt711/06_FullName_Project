@@ -62,28 +62,20 @@
         <!-- Modal content -->
         <div class="modal-content">
             <span class="close">&times;</span>
-            <form asp-action="DeleteOrder" id="orderForm">
-                    <p>Are you sure you want to delete this order?</p>
-
+            @* this form using for 2 action(cancel order<user> and change status order <admin>) *@
+            <form asp-action="DeleteOrderOrderChangeStatus" id="orderForm">
+                    <p id="textModal"></p>
+                    @* this id typeAction use for switch case *@
+                    <input style="display:none;" type="text" id="typeAction" name="typeAction"><br><br>
                     <input style="display:none;" type="text" id="ordeId" name="orderId"><br><br>
 
-                <input type="submit" value="Delete order">
+                <input type="submit" value="Submit">
             </form>
         </div>
 
     </div>
     @* search and filter *@
     <h3>Search Commodity</h3>
-    @* Select category *@
-    <select id="mySelect">
-        <option value="1">Ðèn LED</option>
-        <option value="2">Cáp điện</option>
-        <option value="3">Ổ cắm điện</option>
-        <option value="4">Bộ công cụ điện</option>
-    </select>
-    @* search category *@
-    <input type="text" placeholder="Commodity name" id="commodityNameSearch" />
-    <input type="button" id="btnSearch" value="Search" />
 
     @* loading  *@
     <div id="loadingIndicator" style="display: none; text-align: center; font-size:30px; padding-top: 30px;">
@@ -99,13 +91,13 @@
 
 <script>
     $(document).ready(() => {
-        getAllCommodity();
+        getAllOrder();
     });
-    // get list Commodity
-    const getAllCommodity = () => {
+    // get list Order
+    const getAllOrder = () => {
         $('#loadingIndicator').show();
         $.ajax({
-            url: "https://localhost:7194/api/Orders/GetAllOrder",
+            url: `https://localhost:7194/api/Orders/GetAllOrder/{@ViewBag.UserId}`,
             method: 'GET',
             contentType: "application/json",
             success: (data) => { loadTableData(data); },
@@ -143,11 +135,26 @@
                                                                             <td>${item.note}</td>
                                                                             <td>${item.status}</td>
                                                                             `;
-            if (item.status === "pending") {
-                htmlBody += `<td><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtn">Cancel</a></td></tr>`;
+            if (@ViewBag.UserId == 0) {
+                // there are actions to pending and shipping 
+                if (item.status === "pending") {
+                    htmlBody += `<td  style="color: Aqua;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnShipping">Giao hàng đi</a></td></tr>`;
+                } else if (item.status == "shipping") {
+                    htmlBody += `<td style="color: blue;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnDone">Xác nhận giao hàng thành công</a></td></tr>`;
+                } else if (item.status == "done") {
+                    htmlBody += `<td style="color: green;">Hoàn thành</td></tr>`;
+                } else {
+                    htmlBody += `<td style="color: red;">Đơn đã bị hủy</td></tr>`;
+                }
+                // cancel order => to save satus is cancel or nothings 
             } else {
-                htmlBody += `</tr>`;
+                if (item.status === "pending") {
+                    htmlBody += `<td style="color: Aqua;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnCancel">Hủy đơn</a></td></tr>`;
+                } else if (item.status == "done") {
+                    htmlBody += `<td style="color: green;">Hoàn thành</td></tr>`;
+                }
             }
+        
             $("#table-gg").append(htmlBody);
         });
         $("#table-gg").append("</tbody>");
@@ -157,12 +164,14 @@
     // js for modal
     var modal = document.getElementById("myModal");
     var span = document.getElementsByClassName("close")[0];
-
-    $(document).on('click', '#myModalBtn', async function () {
+    // js for modal cancel order 
+    $(document).on('click', '#myModalBtnCancel', async function () {
         let id = $(this).attr('data-id');
+        $("#typeAction").val("delete");
         $("#ordeId").val(id);
+        $("#textModal").text("Are you sure you want to cancel this order?");
         modal.style.display = "block";
-    })
+    });
 
     window.onclick = function (event) {
         if (event.target == modal) {
@@ -173,37 +182,24 @@
         modal.style.display = "none";
     }
 
+    //js for modal shipping
+    $(document).on('click', '#myModalBtnShipping', async function () {
+        let id = $(this).attr('data-id');
+        $("#typeAction").val("changeStatusShipping");
+        $("#ordeId").val(id);
+        $("#textModal").text("Are you sure you want to shipping this order?");
+        modal.style.display = "block";
+    })
+    //js for modal shiping done
+    $(document).on('click', '#myModalBtnDone', async function () {
+        let id = $(this).attr('data-id');
+        $("#typeAction").val("changeStatusDone");
+        $("#ordeId").val(id);
+        $("#textModal").text("Are you sure that this order have success order?");
+        modal.style.display = "block";
+    })
 
-    //btn search
-    $(document).on('click', '#btnSearch', async () => {
-        let commodityName = $('#commodityNameSearch').val();
-        if (commodityName == "") {
-            getAllCommodity();
-        } else {
-            await $.ajax({
-                url: `https://localhost:7194/api/Commodity/GetByCommodityName/${commodityName}`,
-                method: 'GET',
-                contentType: "application/json",
-                success: (data) => { loadTableData(data), console.log(data) },
-                error: () => { alert("not found data!") }
 
-            });
-        }
-    });
-
-    // selection change
-    $(document).on('change', '#mySelect', async function () {
-        var selectedOption = $(this).val();
-        console.log(selectedOption);
-        await $.ajax({
-            url: `https://localhost:7194/api/Commodity/GetByCategoryId/${selectedOption}`,
-            method: 'GET',
-            contentType: "application/json",
-            success: (data) => { loadTableData(data), console.log(data) },
-            error: () => { alert("not found data!") }
-
-        });
-    });
 </script>
 
 </html>

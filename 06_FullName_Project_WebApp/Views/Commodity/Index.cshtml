@@ -153,11 +153,19 @@
                 <input type="button" id="btnCreate" value="Create" class="btn btn-outline-primary" />
             </div>
         </div>
-
+            @* table *@
         <div class="row p-3">
             <div class="card strpied-tabled-with-hover">
                 <div class="card-body table-full-width table-responsive">
                     <table id="table-gg" class="table table-hover"></table>
+                </div>
+            </div>
+        </div>
+        @* footer download *@
+        <div class="row">
+            <div class="card text-right">
+                <div class="p-3">
+                    <button class="btn btn-outline-success" id="downLoad" asp-controller="Commodity" asp-action="ExportToExcel">Excel</button>
                 </div>
             </div>
         </div>

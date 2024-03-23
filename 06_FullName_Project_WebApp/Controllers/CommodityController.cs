@@ -76,5 +76,29 @@ namespace eStoreClient.Controllers
             return RedirectToAction(nameof(Index), "Commodity");
         }
 
+        public async Task<IActionResult> ExportToExcel()
+        {
+     
+            HttpResponseMessage respone = await client.GetAsync($"{ApiCateUrl}/GetCommodityManager");
+            string strData = await respone.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            List<Commodity> listCommoditys = JsonSerializer.Deserialize<List<Commodity>>(strData, options); */
+            using (var excelPackage = new ExcelPackage())
+            {
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Commodities");
+
+                worksheet.Cells.LoadFromCollection(commodities, true);
+
+                var memoryStream = new MemoryStream();
+                excelPackage.SaveAs(memoryStream);
+
+                return File(memoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Commodities.xlsx");
+            }
+        }
+
+
     }
 }

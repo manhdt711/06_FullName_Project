@@ -78,8 +78,8 @@
 
                     <label for="promo">Promotion:</label><br>
                     <input type="text" id="promo" name="promo" class="input-field"><br><br>
-                    <label for="total">Total payment:</label><br>
-                    <input readonly type="text" id="total" name="total" class="input-field"><br><br>
+                    <label for="total">Total payment:</label>
+                    <span style="color:red; font-size:20px;" id="total" name="total" class="input-field"></span><br>
                 </div>
 
                 <div class="form-column">
@@ -94,8 +94,8 @@
 
                     <label for="note">Note:</label><br>
                     <textarea id="note" name="note" class="input-field"></textarea><br><br>
-            
-                        <input style="width: 200px;" type="button" id="btnOrder" value="Order" /> <input style="display: none; width: 200px;" id="btnsubmitOrder" type="submit" value="Confirm">
+
+                    <input style="width: 200px;" type="button" id="btnOrder" class="btn btn-success" value="Order" /> <input style="display: none; width: 200px;" id="btnsubmitOrder" type="submit" class="btn btn-primary" value="Confirm">
                    
                 </div>
                 
@@ -145,7 +145,7 @@
             </select>
             @* search category *@
             <input type="text" placeholder="Commodity name" id="commodityNameSearch" />
-            <input type="button" id="btnSearch" value="Search" />
+            <input type="button" id="btnSearch" class="btn btn-success" value="Search" />
         </div>
 
     </div>
@@ -377,19 +377,19 @@
                 success: (data) => {
                     alert("Promotion valid!")
                     promoExist = data.discount;
-                    $("#total").val(price * quantity - promoExist);
+                    $("#total").text((price * quantity - promoExist) + " VND");
                     $('#btnOrder').hide();
                     $('#btnsubmitOrder').show();
                 },
                 error: () => {
-                    $("#total").val(price * quantity - promoExist);
+                    $("#total").text((price * quantity - promoExist)+" VND");
                     $('#btnOrder').hide();
                     $('#btnsubmitOrder').show(); 
                     alert("Promotion code not exist!");
                 }
             });
         }
-        $("#total").val(price * quantity - promoExist);
+        $("#total").text((price * quantity - promoExist) + " VND");
         $('#btnOrder').hide();
         $('#btnsubmitOrder').show();
     });

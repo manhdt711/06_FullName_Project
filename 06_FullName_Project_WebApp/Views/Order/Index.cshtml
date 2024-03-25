@@ -130,7 +130,7 @@
                                                                             <td>${item.commodityName}</td>
                                                                             <td>${item.quantity}</td>
                                                                             <td>${item.price} VND</td>
-                                                                            <td>${(item.promotionId == 0) ? item.totalPayment + " VND" : item.totalPayment + " VND (have discount)"}</td>
+                                                                            <td>${(item.promotionId == 0) ? (item.totalPayment + " VND (have discount)") : ((item.totalPayment < 0) ? "FREE" : item.totalPayment + " VND")}</td>
                                                                             <td>${item.customerName}</td>
                                                                             <td>${item.address}</td>
                                                                             <td>${item.phoneNumber}</td>
@@ -140,20 +140,20 @@
             if (@ViewBag.UserId == 0) {
                 // there are actions to pending and shipping 
                 if (item.status === "pending") {
-                    htmlBody += `<td  style="color: Aqua;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnShipping">Giao hàng đi</a></td></tr>`;
+                    htmlBody += `<td  style="color: Aqua;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnShipping">Deliver the goods</a></td></tr>`;
                 } else if (item.status == "shipping") {
-                    htmlBody += `<td style="color: blue;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnDone">Xác nhận giao hàng thành công</a></td></tr>`;
+                    htmlBody += `<td style="color: blue;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnDone">Confirm successful delivery</a></td></tr>`;
                 } else if (item.status == "done") {
-                    htmlBody += `<td style="color: green;">Hoàn thành</td></tr>`;
+                    htmlBody += `<td style="color: green;">Complete</td></tr>`;
                 } else {
-                    htmlBody += `<td style="color: red;">Đơn đã bị hủy</td></tr>`;
+                    htmlBody += `<td style="color: red;">The order has been cancelled</td></tr>`;
                 }
                 // cancel order => to save satus is cancel or nothings 
             } else {
                 if (item.status === "pending") {
-                    htmlBody += `<td style="color: Aqua;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnCancel">Hủy đơn</a></td></tr>`;
+                    htmlBody += `<td style="color: Aqua;"><a href="javascript:void(0)" data-id="${item.orderId}" id="myModalBtnCancel">Cancel order</a></td></tr>`;
                 } else if (item.status == "done") {
-                    htmlBody += `<td style="color: green;">Hoàn thành</td></tr>`;
+                    htmlBody += `<td style="color: green;">Complete</td></tr>`;
                 }
             }
         

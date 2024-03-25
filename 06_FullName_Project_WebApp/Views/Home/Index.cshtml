@@ -131,31 +131,6 @@
         </div>
     </div>
 
-    <div id="modalCreate" class="modal">
-        <!-- Modal content -->
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <form asp-controller="Commodity" asp-action="Create" id="commodityForm" method="post">
-                <div class="form-column">
-                    <label for="CommodityName">Commodity Name:</label>
-                    <input type="text" name="CommodityName" id="CommodityName" class="input-field">
-                    <label for="UnitPrice">UnitPrice:</label>
-                    <input type="number" name="UnitPrice" id="UnitPrice" class="input-field">
-                    <label for="UnitInStock">UnitInStock:</label>
-                    <input type="number" name="UnitInStock" id="UnitInStock" class="input-field">
-                    <label id="createCategoryId" for="CategoryId">Category:</label>
-                    <select name="CategoryId" id="CategoryId" class="form-control">
-                        <!-- Options will be dynamically added by JavaScript -->
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-primary" />
-                </div>
-            </form>
-
-
-        </div>
-    </div>
 
     @* search and filter *@
     <h3>Search Commodity</h3>
@@ -172,9 +147,7 @@
             <input type="text" placeholder="Commodity name" id="commodityNameSearch" />
             <input type="button" id="btnSearch" value="Search" />
         </div>
-        <div>
-            <input type="button" id="btnCreate" value="Create"/>
-        </div>
+
     </div>
 
     @* loading  *@

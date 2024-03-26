@@ -109,6 +109,16 @@
     @* show main table *@
     <table id="table-gg" class="table">
     </table>
+
+    <div class="row">
+        <div class="card text-right">
+            <div class="p-3">
+                <label>Report Sale Money Amount: </label>
+                <span class="report-sale-money-amount"></span> <!-- This will display the total payment amount -->
+            </div>
+        </div>
+    </div>
+
 </body>
 <script src="../lib/jquery/dist/jquery.min.js"></script>
 <script src="../lib/jquery/dist/jquery.js"></script>
@@ -130,6 +140,7 @@
     }
     const loadTableData = (data) => {
         $("#table-gg").empty();
+        var totalPayment = 0;
         var htmlHeader = `
                                  <thead>
                                      <tr>
@@ -181,12 +192,16 @@
                 } else if (item.status == "done") {
                     htmlBody += `<td style="color: green;">Complete</td></tr>`;
                 }
+
             }
-        
+            totalPayment += parseFloat(item.totalPayment); // Assuming totalPayment is a numerical value
             $("#table-gg").append(htmlBody);
         });
         $("#table-gg").append("</tbody>");
         $('#loadingIndicator').hide();
+        $(".report-sale-money-amount").text(totalPayment + " VND");
+
+        $("#table-gg").append("</tbody>");
     }
 
     // js for modal
@@ -238,11 +253,12 @@
             method: 'GET',
             contentType: "application/json",
             success: (data) => {
-                if (data && data.length > 0) {
+                if (data.length > 0) {
                     loadTableData(data);
                 } else {
                     // Display an alert if the list is null or empty
                     alert('No data available for the selected date range.');
+                    $('#loadingIndicator').hide();
                 }
             },
             error: () => { 
@@ -261,14 +277,19 @@
             var fromDate = document.getElementById("fromDate").value;
             var toDate = document.getElementById("toDate").value;
 
-            // Check if toDate is earlier than fromDate
-            if (toDate && fromDate && toDate < fromDate) {
-                alert("To date cannot be earlier than From date.");
+            // Check if both dates are provided
+            if (!fromDate || !toDate) {
+                alert("Please enter both From and To dates.");
+                return false; // Prevent form submission or further action
+            }
+
+            // Check if fromDate is greater than toDate
+            if (fromDate > toDate) {
+                alert("From date cannot be greater than To date.");
                 return false; // Prevent form submission or further action
             }
         });
     });
-
 </script>
 
 </html>

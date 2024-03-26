@@ -75,7 +75,31 @@
 
     </div>
     @* search and filter *@
-    <h3>Search Commodity</h3>
+    <h3>Search Order</h3>
+    @if(@ViewBag.UserId == 0)
+    {
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="fromDate">From:</label>
+                        <input type="date" class="form-control" id="fromDate" name="fromDate">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="toDate">To:</label>
+                        <input type="date" class="form-control" id="toDate" name="toDate">
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <button class="btn btn-primary" id="btnSearch">Filter</button>
+                    <button class="btn btn-secondary" id="btnClear">Clear</button>
+                </div>
+            </div>
+        </div>
+    }
+
 
     @* loading  *@
     <div id="loadingIndicator" style="display: none; text-align: center; font-size:30px; padding-top: 30px;">
@@ -117,7 +141,8 @@
                                                  <th>address</th>
                                                  <th>phoneNumber</th>
                                                  <th>note</th>
-                                                 <th>status</th>
+                                                 <th>OrderDate</th>
+                                                 <th>Status</th>
                                              <th></th>
                                      </tr>
                                  </thead>
@@ -135,6 +160,7 @@
                                                                             <td>${item.address}</td>
                                                                             <td>${item.phoneNumber}</td>
                                                                             <td>${(item.note == null) ? "":item.note}</td>
+                                                                                    <td>${item.orderDate}</td>
                                                                             <td>${item.status}</td>
                                                                             `;
             if (@ViewBag.UserId == 0) {
@@ -200,7 +226,48 @@
         $("#textModal").text("Are you sure that this order have success order?");
         modal.style.display = "block";
     })
+    //Search Onclick
+      //search
+        $('#btnSearch').click(async function () {
+        var fromDate = $('#fromDate').val();
+        var toDate = $('#toDate').val();
+        $('#loadingIndicator').show();
+        $('#table-gg').empty();
+        $.ajax({
+            url: `https://localhost:7194/api/Orders/GetOrdersByDateRange/${fromDate}/${toDate}`,
+            method: 'GET',
+            contentType: "application/json",
+            success: (data) => {
+                if (data && data.length > 0) {
+                    loadTableData(data);
+                } else {
+                    // Display an alert if the list is null or empty
+                    alert('No data available for the selected date range.');
+                }
+            },
+            error: () => { 
+            }
+        })
+        });
 
+        //clear
+    $('#btnClear').click(async function () {
+        getAllOrder();
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        // Attach click event listener to the Filter button
+        document.getElementById("btnSearch").addEventListener("click", function () {
+            var fromDate = document.getElementById("fromDate").value;
+            var toDate = document.getElementById("toDate").value;
+
+            // Check if toDate is earlier than fromDate
+            if (toDate && fromDate && toDate < fromDate) {
+                alert("To date cannot be earlier than From date.");
+                return false; // Prevent form submission or further action
+            }
+        });
+    });
 
 </script>
 

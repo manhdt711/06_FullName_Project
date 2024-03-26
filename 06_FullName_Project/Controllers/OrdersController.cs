@@ -1,4 +1,7 @@
-﻿using ElecStore.Models;
+﻿using ClassLibrary2.DTO;
+using ClassLibrary2.ViewModel;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using ElecStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
@@ -34,7 +37,9 @@ namespace _06_FullName_Project.Controllers
                 userId = x.UserId,
                 status = x.PaymentMethod,
                 orderId = x.OrderId,
-                TotalPayment = x.InvoiceNumber
+                TotalPayment = x.InvoiceNumber,
+                DateId = x.DateId,
+                OrderDate = DateDAO.GetDateByOrderID(x.OrderId).OrderDate,
             }).ToList();
             }
             else
@@ -54,7 +59,9 @@ namespace _06_FullName_Project.Controllers
                 userId = x.UserId,
                 status = x.PaymentMethod,
                 orderId = x.OrderId,
-                TotalPayment = x.InvoiceNumber
+                TotalPayment = x.InvoiceNumber,
+                DateId = x.DateId,
+                OrderDate = DateDAO.GetDateByOrderID(x.OrderId).OrderDate,
             }).ToList();
             }
             return orders;
@@ -142,5 +149,94 @@ namespace _06_FullName_Project.Controllers
             _context.SaveChanges();
             return Ok();
         }
+        [HttpGet("GetOrdersByDateRange/{dateFrom}/{dateTo}")]
+        public ActionResult<List<OrderDTO>> GetOrdersByDateRange(DateTime? dateFrom, DateTime? dateTo)
+        {
+            if (!dateFrom.HasValue && !dateTo.HasValue)
+            {
+                return BadRequest("At least one of dateFrom and dateTo must be provided.");
+            }
+            if (!dateFrom.HasValue)
+            {
+                List<OrderDTO> orders = _context.Orders.Select(x =>
+            new ClassLibrary2.DTO.OrderDTO
+            {
+                commodityId = x.CommodityId,
+                commodityName = x.Commodity.CommodityName,
+                quantity = x.OrderDetails.ToList()[0].Quantity,
+                price = x.OrderDetails.ToList()[0].UnitPrice,
+                customerName = x.Customer.CustomerName,
+                address = x.Customer.CustomerAddress,
+                phoneNumber = x.Customer.CustomerPhone,
+                note = x.Customer.Comment,
+                userId = x.UserId,
+                status = x.PaymentMethod,
+                orderId = x.OrderId,
+                TotalPayment = x.InvoiceNumber,
+                DateId = x.DateId,
+                OrderDate = DateDAO.GetDateByOrderID(x.OrderId).OrderDate,
+            }).ToList();
+
+                return orders.Where(x => x.OrderDate <= dateTo).ToList();
+            }
+
+            // Kiểm tra nếu dateTo là null
+            if (!dateTo.HasValue)
+            {
+                // Lấy danh sách đơn hàng có ngày lớn hơn hoặc bằng dateFrom
+                List<OrderDTO> orders = _context.Orders.Select(x =>
+            new ClassLibrary2.DTO.OrderDTO
+            {
+                commodityId = x.CommodityId,
+                commodityName = x.Commodity.CommodityName,
+                quantity = x.OrderDetails.ToList()[0].Quantity,
+                price = x.OrderDetails.ToList()[0].UnitPrice,
+                customerName = x.Customer.CustomerName,
+                address = x.Customer.CustomerAddress,
+                phoneNumber = x.Customer.CustomerPhone,
+                note = x.Customer.Comment,
+                userId = x.UserId,
+                status = x.PaymentMethod,
+                orderId = x.OrderId,
+                TotalPayment = x.InvoiceNumber,
+                DateId = x.DateId,
+                OrderDate = DateDAO.GetDateByOrderID(x.OrderId).OrderDate,
+            }).ToList();
+
+                return orders.Where(x => x.OrderDate >= dateFrom).ToList();
+            }
+
+            if (dateFrom >= dateTo)
+            {
+                return BadRequest("Invalid date range.");
+            }
+
+            List<OrderDTO> ordersInRange = _context.Orders.Select(x =>
+            new ClassLibrary2.DTO.OrderDTO
+            {
+                commodityId = x.CommodityId,
+                commodityName = x.Commodity.CommodityName,
+                quantity = x.OrderDetails.ToList()[0].Quantity,
+                price = x.OrderDetails.ToList()[0].UnitPrice,
+                customerName = x.Customer.CustomerName,
+                address = x.Customer.CustomerAddress,
+                phoneNumber = x.Customer.CustomerPhone,
+                note = x.Customer.Comment,
+                userId = x.UserId,
+                status = x.PaymentMethod,
+                orderId = x.OrderId,
+                TotalPayment = x.InvoiceNumber,
+                DateId = x.DateId,
+                OrderDate = DateDAO.GetDateByOrderID(x.OrderId).OrderDate,
+            }).ToList();
+
+            ordersInRange = ordersInRange.Where(x => x.OrderDate >= dateFrom && x.OrderDate <= dateTo).ToList();
+            if (ordersInRange.Count == 0)
+            {
+                return NotFound("No orders found in the specified date range.");
+            }
+            return ordersInRange;
+        }
+
     }
 }
